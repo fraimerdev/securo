@@ -1,11 +1,4 @@
-flask
-flask-mail
-flask-cors
-google-generativeai
-beautifulsoup4
-requests
-PyPDF2
-pdfminer.six"""
+"""
 SECURO - St. Kitts & Nevis Crime Prevention Platform
 Real News Feed Integration System
 

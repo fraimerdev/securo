@@ -1,0 +1,8 @@
+flask
+flask-mail
+flask-cors
+google-generativeai
+beautifulsoup4
+requests
+PyPDF2
+pdfminer.six
