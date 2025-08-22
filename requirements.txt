@@ -6,3 +6,4 @@ beautifulsoup4
 requests
 PyPDF2
 pdfminer.six
+gunicorn
