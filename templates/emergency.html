@@ -1,0 +1,1796 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Contacts{% endblock %}
+
+{% block header %}Emergency Contacts{% endblock %}
+
+{% block content %}
+<div class="emergency-container">
+    <!-- Animated Background with Flag Colors -->
+    <div class="page-background">
+        <div class="flag-pattern"></div>
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Emergency Header -->
+    <div class="emergency-header">
+        <div class="emergency-alert">
+            <div class="alert-visual">
+                <div class="alert-rings">
+                    <div class="ring ring-outer"></div>
+                    <div class="ring ring-middle"></div>
+                    <div class="ring ring-inner"></div>
+                </div>
+                <div class="alert-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+            <div class="alert-content">
+                <h2>EMERGENCY SERVICES - ST. KITTS AND NEVIS</h2>
+                <p>In case of immediate danger or emergency, call 911 now!</p>
+            </div>
+        </div>
+        
+        <div class="quick-dial">
+            <a href="tel:911" class="emergency-btn police">
+                <div class="btn-glow"></div>
+                <div class="btn-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="btn-content">
+                    <span class="btn-number">CALL 911</span>
+                    <small>Police Emergency</small>
+                </div>
+            </a>
+            <a href="tel:333" class="emergency-btn fire">
+                <div class="btn-glow"></div>
+                <div class="btn-icon">
+                    <i class="fas fa-fire-extinguisher"></i>
+                </div>
+                <div class="btn-content">
+                    <span class="btn-number">CALL 333</span>
+                    <small>Fire Department</small>
+                </div>
+            </a>
+            <a href="tel:911" class="emergency-btn medical">
+                <div class="btn-glow"></div>
+                <div class="btn-icon">
+                    <i class="fas fa-ambulance"></i>
+                </div>
+                <div class="btn-content">
+                    <span class="btn-number">CALL 911</span>
+                    <small>Medical Emergency</small>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Emergency Contacts Grid -->
+    <div class="contacts-section">
+        <div class="section-header">
+            <h3>EMERGENCY & IMPORTANT CONTACTS</h3>
+            <div class="header-line"></div>
+        </div>
+        
+        <div class="contacts-grid">
+            <!-- Police Headquarters -->
+            <div class="contact-card emergency">
+                <div class="card-glow"></div>
+                <div class="contact-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="contact-info">
+                    <h4>Police Headquarters</h4>
+                    <div class="contact-number">(869) 465-2241</div>
+                    <div class="contact-location">Cayon Street, Basseterre</div>
+                    <div class="contact-actions">
+                        <a href="tel:8694652241" class="call-btn">
+                            <i class="fas fa-phone"></i>
+                            CALL
+                        </a>
+                        <button class="copy-btn" onclick="copyNumber('(869) 465-2241')">
+                            <i class="fas fa-copy"></i>
+                            COPY
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JNF General Hospital -->
+            <div class="contact-card emergency">
+                <div class="card-glow"></div>
+                <div class="contact-icon">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <div class="contact-info">
+                    <h4>JNF General Hospital</h4>
+                    <div class="contact-number">(869) 465-2551</div>
+                    <div class="contact-location">Emergency Medical Services</div>
+                    <div class="contact-actions">
+                        <a href="tel:8694652551" class="call-btn">
+                            <i class="fas fa-phone"></i>
+                            CALL
+                        </a>
+                        <button class="copy-btn" onclick="copyNumber('(869) 465-2551')">
+                            <i class="fas fa-copy"></i>
+                            COPY
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coast Guard -->
+            <div class="contact-card general">
+                <div class="card-glow"></div>
+                <div class="contact-icon">
+                    <i class="fas fa-anchor"></i>
+                </div>
+                <div class="contact-info">
+                    <h4>Coast Guard</h4>
+                    <div class="contact-number">(869) 465-8973</div>
+                    <div class="contact-location">Maritime Emergency Services</div>
+                    <div class="contact-actions">
+                        <a href="tel:8694658973" class="call-btn">
+                            <i class="fas fa-phone"></i>
+                            CALL
+                        </a>
+                        <button class="copy-btn" onclick="copyNumber('(869) 465-8973')">
+                            <i class="fas fa-copy"></i>
+                            COPY
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crisis Helpline -->
+            <div class="contact-card support">
+                <div class="card-glow"></div>
+                <div class="contact-icon">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+                <div class="contact-info">
+                    <h4>Crisis Helpline</h4>
+                    <div class="contact-number">(869) 465-2945</div>
+                    <div class="contact-location">24/7 Mental Health Support</div>
+                    <div class="contact-actions">
+                        <a href="tel:8694652945" class="call-btn">
+                            <i class="fas fa-phone"></i>
+                            CALL
+                        </a>
+                        <button class="copy-btn" onclick="copyNumber('(869) 465-2945')">
+                            <i class="fas fa-copy"></i>
+                            COPY
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nevis Police -->
+            <div class="contact-card general">
+                <div class="card-glow"></div>
+                <div class="contact-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="contact-info">
+                    <h4>Nevis Police Station</h4>
+                    <div class="contact-number">(869) 469-5391</div>
+                    <div class="contact-location">Charlestown, Nevis</div>
+                    <div class="contact-actions">
+                        <a href="tel:8694695391" class="call-btn">
+                            <i class="fas fa-phone"></i>
+                            CALL
+                        </a>
+                        <button class="copy-btn" onclick="copyNumber('(869) 469-5391')">
+                            <i class="fas fa-copy"></i>
+                            COPY
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crime Stoppers -->
+            <div class="contact-card tip">
+                <div class="card-glow"></div>
+                <div class="contact-icon">
+                    <i class="fas fa-user-secret"></i>
+                </div>
+                <div class="contact-info">
+                    <h4>Crime Stoppers</h4>
+                    <div class="contact-number">(869) 707-7463</div>
+                    <div class="contact-location">Anonymous Crime Tips</div>
+                    <div class="contact-actions">
+                        <a href="tel:8697077463" class="call-btn">
+                            <i class="fas fa-phone"></i>
+                            CALL
+                        </a>
+                        <button class="copy-btn" onclick="copyNumber('(869) 707-7463')">
+                            <i class="fas fa-copy"></i>
+                            COPY
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Police Stations -->
+    <div class="stations-section">
+        <div class="section-header">
+            <h3>POLICE STATIONS</h3>
+            <div class="header-line"></div>
+        </div>
+        
+        <div class="stations-grid">
+            <div class="station-card main">
+                <div class="station-glow"></div>
+                <div class="station-header">
+                    <div class="station-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="station-info">
+                        <h4>Police Headquarters</h4>
+                        <span class="station-badge main">MAIN STATION</span>
+                    </div>
+                </div>
+                <div class="station-details">
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Cayon Street, Basseterre</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-phone"></i>
+                        <span>(869) 465-2241</span>
+                        <a href="tel:8694652241" class="quick-call">CALL</a>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>24/7 Operations</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="station-card">
+                <div class="station-glow"></div>
+                <div class="station-header">
+                    <div class="station-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="station-info">
+                        <h4>Sandy Point Police Station</h4>
+                        <span class="station-badge branch">BRANCH</span>
+                    </div>
+                </div>
+                <div class="station-details">
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Sandy Point Town</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-phone"></i>
+                        <span>(869) 465-6140</span>
+                        <a href="tel:8694656140" class="quick-call">CALL</a>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>8:00 AM - 6:00 PM</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="station-card nevis">
+                <div class="station-glow"></div>
+                <div class="station-header">
+                    <div class="station-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="station-info">
+                        <h4>Nevis Police Station</h4>
+                        <span class="station-badge nevis">NEVIS</span>
+                    </div>
+                </div>
+                <div class="station-details">
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Charlestown, Nevis</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-phone"></i>
+                        <span>(869) 469-5391</span>
+                        <a href="tel:8694695391" class="quick-call">CALL</a>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>24/7 Operations</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="station-card">
+                <div class="station-glow"></div>
+                <div class="station-header">
+                    <div class="station-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="station-info">
+                        <h4>Dieppe Bay Police Station</h4>
+                        <span class="station-badge branch">BRANCH</span>
+                    </div>
+                </div>
+                <div class="station-details">
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Dieppe Bay Town</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-phone"></i>
+                        <span>(869) 465-7222</span>
+                        <a href="tel:8694657222" class="quick-call">CALL</a>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>8:00 AM - 4:00 PM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Procedures -->
+    <div class="procedures-section">
+        <div class="section-header">
+            <h3>EMERGENCY PROCEDURES</h3>
+            <div class="header-line"></div>
+        </div>
+        
+        <div class="procedures-grid">
+            <div class="procedure-card">
+                <div class="procedure-glow"></div>
+                <div class="procedure-header">
+                    <div class="procedure-icon emergency">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <h4>CALLING 911</h4>
+                </div>
+                <div class="procedure-steps">
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <p>Stay calm and speak clearly</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <p>State your exact location</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <p>Describe the emergency</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">4</span>
+                        <p>Follow dispatcher instructions</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">5</span>
+                        <p>Stay on the line until told to hang up</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="procedure-card">
+                <div class="procedure-glow"></div>
+                <div class="procedure-header">
+                    <div class="procedure-icon crime">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h4>REPORTING CRIME</h4>
+                </div>
+                <div class="procedure-steps">
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <p>Ensure your safety first</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <p>Call 911 for crimes in progress</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <p>Use SECURO app for non-emergency reports</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">4</span>
+                        <p>Preserve evidence if safe to do so</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">5</span>
+                        <p>Cooperate with responding officers</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="procedure-card">
+                <div class="procedure-glow"></div>
+                <div class="procedure-header">
+                    <div class="procedure-icon medical">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h4>MEDICAL EMERGENCY</h4>
+                </div>
+                <div class="procedure-steps">
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <p>Call 911 immediately</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <p>Check for responsiveness and breathing</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <p>Start CPR if trained and necessary</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">4</span>
+                        <p>Control bleeding with direct pressure</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">5</span>
+                        <p>Keep victim calm and still</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Tips -->
+    <div class="tips-section">
+        <div class="section-header">
+            <h3>EMERGENCY PREPAREDNESS TIPS</h3>
+            <div class="header-line"></div>
+        </div>
+        
+        <div class="tips-grid">
+            <div class="tip-card">
+                <div class="tip-glow"></div>
+                <div class="tip-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h5>KEEP PHONES CHARGED</h5>
+                <p>Maintain at least 50% battery on your mobile device for emergencies.</p>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-glow"></div>
+                <div class="tip-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <h5>EMERGENCY CONTACT LIST</h5>
+                <p>Keep a written list of emergency numbers in your wallet or purse.</p>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-glow"></div>
+                <div class="tip-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h5>KNOW YOUR LOCATION</h5>
+                <p>Always be aware of your exact address or nearest landmark.</p>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-glow"></div>
+                <div class="tip-icon">
+                    <i class="fas fa-first-aid"></i>
+                </div>
+                <h5>BASIC FIRST AID</h5>
+                <p>Learn basic first aid and CPR techniques from certified instructors.</p>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-glow"></div>
+                <div class="tip-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h5>EMERGENCY CONTACTS</h5>
+                <p>Inform family and friends about your emergency contact preferences.</p>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-glow"></div>
+                <div class="tip-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h5>STAY INFORMED</h5>
+                <p>Follow official police and emergency services on social media for updates.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <div class="actions-header">
+            <div class="actions-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h3>QUICK ACTIONS</h3>
+        </div>
+        <div class="actions-grid">
+            <a href="/report-crime" class="action-btn report">
+                <div class="action-glow"></div>
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>REPORT CRIME</span>
+            </a>
+            <a href="/chatbot" class="action-btn chat">
+                <div class="action-glow"></div>
+                <i class="fas fa-robot"></i>
+                <span>ASK SECURO AI</span>
+            </a>
+            <a href="/hotspots" class="action-btn map">
+                <div class="action-glow"></div>
+                <i class="fas fa-map-marked-alt"></i>
+                <span>VIEW CRIME MAP</span>
+            </a>
+            <button class="action-btn share" onclick="shareContacts()">
+                <div class="action-glow"></div>
+                <i class="fas fa-share-alt"></i>
+                <span>SHARE CONTACTS</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        /* St. Kitts & Nevis Flag Colors */
+        --flag-green: #00A651;
+        --flag-green-light: #00C760;
+        --flag-green-dark: #008A44;
+        --flag-red: #E31E24;
+        --flag-red-light: #FF2E34;
+        --flag-red-dark: #C01E24;
+        --flag-gold: #FFD700;
+        --flag-gold-light: #FFED4E;
+        --flag-gold-dark: #E6C200;
+        --flag-black: #000000;
+        --flag-white: #FFFFFF;
+    }
+
+    .emergency-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        min-height: 100vh;
+    }
+
+    /* Animated Background with Flag Colors */
+    .page-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: -1;
+        background: linear-gradient(135deg, var(--flag-black) 0%, #111 50%, var(--flag-black) 100%);
+    }
+
+    .flag-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            linear-gradient(45deg, transparent 30%, rgba(0, 166, 81, 0.02) 32%, rgba(0, 166, 81, 0.02) 48%, transparent 50%),
+            linear-gradient(-45deg, transparent 30%, rgba(227, 30, 36, 0.02) 32%, rgba(227, 30, 36, 0.02) 48%, transparent 50%),
+            linear-gradient(90deg, transparent 45%, rgba(255, 215, 0, 0.01) 47%, rgba(255, 215, 0, 0.01) 53%, transparent 55%);
+        animation: subtleShift 40s infinite linear;
+    }
+
+    @keyframes subtleShift {
+        0% { transform: translateX(-100px) translateY(-100px); }
+        100% { transform: translateX(100px) translateY(100px); }
+    }
+
+    .gradient-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.12;
+        animation: float 25s infinite ease-in-out;
+    }
+
+    .orb-1 {
+        width: 400px;
+        height: 400px;
+        background: linear-gradient(45deg, var(--flag-green), var(--flag-green-light));
+        top: 10%;
+        right: 10%;
+        animation-delay: 0s;
+    }
+
+    .orb-2 {
+        width: 300px;
+        height: 300px;
+        background: linear-gradient(45deg, var(--flag-red), var(--flag-red-light));
+        bottom: 20%;
+        left: 5%;
+        animation-delay: 8s;
+    }
+
+    .orb-3 {
+        width: 250px;
+        height: 250px;
+        background: linear-gradient(45deg, var(--flag-gold), var(--flag-gold-light));
+        top: 50%;
+        left: 50%;
+        animation-delay: 16s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(30px, -30px) rotate(90deg); }
+        50% { transform: translate(-20px, 20px) rotate(180deg); }
+        75% { transform: translate(-30px, -10px) rotate(270deg); }
+    }
+
+    /* Emergency Header */
+    .emergency-header {
+        margin-bottom: 50px;
+    }
+
+    .emergency-alert {
+        background: linear-gradient(135deg, var(--flag-red) 0%, var(--flag-red-dark) 100%);
+        color: var(--flag-white);
+        border-radius: 16px;
+        padding: 40px;
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 20px 50px rgba(227, 30, 36, 0.3);
+        position: relative;
+        overflow: hidden;
+        border: 2px solid var(--flag-red-light);
+    }
+
+    .emergency-alert::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--flag-white), var(--flag-gold), var(--flag-white));
+        border-radius: 16px 16px 0 0;
+    }
+
+    .alert-visual {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .alert-rings {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
+    .ring {
+        position: absolute;
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        opacity: 0.8;
+    }
+
+    .ring-outer {
+        width: 100%;
+        height: 100%;
+        animation: rotate-slow 20s linear infinite;
+        border-style: dashed;
+        border-color: var(--flag-gold);
+    }
+
+    .ring-middle {
+        width: 80%;
+        height: 80%;
+        top: 10%;
+        left: 10%;
+        animation: rotate-medium 15s linear infinite reverse;
+        border-style: dotted;
+        border-color: var(--flag-white);
+    }
+
+    .ring-inner {
+        width: 60%;
+        height: 60%;
+        top: 20%;
+        left: 20%;
+        animation: rotate-fast 10s linear infinite;
+        border-color: var(--flag-gold);
+    }
+
+    @keyframes rotate-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes rotate-medium { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes rotate-fast { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .alert-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        animation: pulse 2s infinite;
+        z-index: 2;
+        border: 2px solid var(--flag-gold);
+        color: var(--flag-white);
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .alert-content h2 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin-bottom: 15px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    .alert-content p {
+        font-size: 1.3rem;
+        opacity: 0.9;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .quick-dial {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+    }
+
+    .emergency-btn {
+        background: linear-gradient(145deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+        border: 2px solid var(--flag-green);
+        color: var(--flag-white);
+        text-decoration: none;
+        padding: 30px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(15px);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .emergency-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .emergency-btn.police::before {
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-green-light));
+    }
+
+    .emergency-btn.fire::before {
+        background: linear-gradient(90deg, var(--flag-red), var(--flag-red-light));
+    }
+
+    .emergency-btn.medical::before {
+        background: linear-gradient(90deg, var(--flag-gold), var(--flag-gold-light));
+    }
+
+    .btn-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 166, 81, 0.05) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .emergency-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 50px rgba(0, 166, 81, 0.2);
+        border-color: var(--flag-gold);
+        color: var(--flag-white);
+        text-decoration: none;
+    }
+
+    .emergency-btn:hover .btn-glow {
+        opacity: 1;
+    }
+
+    .btn-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+        border: 2px solid var(--flag-gold);
+    }
+
+    .emergency-btn.police .btn-icon {
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+        color: var(--flag-white);
+    }
+
+    .emergency-btn.fire .btn-icon {
+        background: linear-gradient(135deg, var(--flag-red), var(--flag-red-light));
+        color: var(--flag-white);
+    }
+
+    .emergency-btn.medical .btn-icon {
+        background: linear-gradient(135deg, var(--flag-gold), var(--flag-gold-dark));
+        color: var(--flag-black);
+    }
+
+    .btn-content {
+        flex: 1;
+    }
+
+    .btn-number {
+        font-size: 1.5rem;
+        font-weight: 900;
+        margin-bottom: 5px;
+        display: block;
+        color: var(--flag-green);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .emergency-btn small {
+        font-size: 1rem;
+        opacity: 0.8;
+        font-weight: 500;
+        color: #CCCCCC;
+    }
+
+    /* Section Headers */
+    .section-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .section-header h3 {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--flag-green);
+        margin-bottom: 15px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        text-shadow: 0 0 10px rgba(0, 166, 81, 0.3);
+    }
+
+    .header-line {
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-gold), var(--flag-red));
+        margin: 0 auto;
+        border-radius: 2px;
+    }
+
+    /* Contacts Grid */
+    .contacts-section {
+        margin-bottom: 60px;
+    }
+
+    .contacts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+    }
+
+    .contact-card {
+        background: linear-gradient(145deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+        border: 2px solid var(--flag-green);
+        border-radius: 16px;
+        padding: 30px;
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        transition: all 0.4s ease;
+        backdrop-filter: blur(15px);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .contact-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .contact-card.emergency::before {
+        background: linear-gradient(90deg, var(--flag-red), var(--flag-red-light));
+    }
+
+    .contact-card.general::before {
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-green-light));
+    }
+
+    .contact-card.support::before {
+        background: linear-gradient(90deg, var(--flag-gold), var(--flag-gold-light));
+    }
+
+    .contact-card.tip::before {
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-gold));
+    }
+
+    .card-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 166, 81, 0.05) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .contact-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--flag-gold);
+        box-shadow: 0 20px 50px rgba(0, 166, 81, 0.15);
+    }
+
+    .contact-card:hover .card-glow {
+        opacity: 1;
+    }
+
+    .contact-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        flex-shrink: 0;
+        border: 2px solid var(--flag-gold);
+    }
+
+    .contact-card.emergency .contact-icon {
+        background: linear-gradient(135deg, var(--flag-red), var(--flag-red-dark));
+        color: var(--flag-white);
+    }
+
+    .contact-card.general .contact-icon {
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-dark));
+        color: var(--flag-white);
+    }
+
+    .contact-card.support .contact-icon {
+        background: linear-gradient(135deg, var(--flag-gold), var(--flag-gold-dark));
+        color: var(--flag-black);
+    }
+
+    .contact-card.tip .contact-icon {
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+        color: var(--flag-white);
+    }
+
+    .contact-info {
+        flex: 1;
+    }
+
+    .contact-info h4 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--flag-green);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .contact-number {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--flag-white);
+        margin-bottom: 5px;
+    }
+
+    .contact-location {
+        font-size: 0.9rem;
+        color: #CCCCCC;
+        margin-bottom: 15px;
+        font-style: italic;
+    }
+
+    .contact-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .call-btn,
+    .copy-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-decoration: none;
+        border: 2px solid;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .call-btn {
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-dark));
+        color: var(--flag-white);
+        border-color: var(--flag-green);
+    }
+
+    .call-btn:hover {
+        background: linear-gradient(135deg, var(--flag-green-light), var(--flag-green));
+        transform: translateY(-1px);
+        color: var(--flag-white);
+        text-decoration: none;
+    }
+
+    .copy-btn {
+        background: rgba(255, 215, 0, 0.1);
+        color: var(--flag-gold);
+        border-color: var(--flag-gold);
+    }
+
+    .copy-btn:hover {
+        background: rgba(255, 215, 0, 0.2);
+        transform: translateY(-1px);
+    }
+
+    /* Police Stations */
+    .stations-section {
+        margin-bottom: 60px;
+    }
+
+    .stations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+    }
+
+    .station-card {
+        background: linear-gradient(145deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+        border: 2px solid var(--flag-green);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        backdrop-filter: blur(15px);
+        position: relative;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .station-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-gold));
+        border-radius: 16px 16px 0 0;
+    }
+
+    .station-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 166, 81, 0.05) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .station-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--flag-gold);
+        box-shadow: 0 20px 50px rgba(0, 166, 81, 0.15);
+    }
+
+    .station-card:hover .station-glow {
+        opacity: 1;
+    }
+
+    .station-header {
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+        color: var(--flag-white);
+        padding: 25px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .station-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        border: 2px solid var(--flag-gold);
+    }
+
+    .station-info {
+        flex: 1;
+    }
+
+    .station-header h4 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .station-badge {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        background: rgba(0, 0, 0, 0.2);
+        letter-spacing: 0.5px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .station-badge.main {
+        background: var(--flag-red);
+        color: var(--flag-white);
+        border-color: var(--flag-red);
+    }
+
+    .station-badge.nevis {
+        background: var(--flag-gold);
+        color: var(--flag-black);
+        border-color: var(--flag-gold);
+    }
+
+    .station-details {
+        padding: 25px;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+        color: var(--flag-white);
+        font-weight: 500;
+    }
+
+    .detail-item i {
+        width: 20px;
+        color: var(--flag-green);
+        font-size: 16px;
+    }
+
+    .quick-call {
+        margin-left: auto;
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-dark));
+        color: var(--flag-white);
+        padding: 4px 10px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        border: 1px solid var(--flag-green);
+    }
+
+    .quick-call:hover {
+        background: linear-gradient(135deg, var(--flag-green-light), var(--flag-green));
+        transform: translateY(-1px);
+        color: var(--flag-white);
+        text-decoration: none;
+    }
+
+    /* Procedures */
+    .procedures-section {
+        margin-bottom: 60px;
+    }
+
+    .procedures-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 30px;
+    }
+
+    .procedure-card {
+        background: linear-gradient(145deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+        border: 2px solid var(--flag-green);
+        border-radius: 16px;
+        padding: 30px;
+        backdrop-filter: blur(15px);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .procedure-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-gold));
+        border-radius: 16px 16px 0 0;
+    }
+
+    .procedure-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 166, 81, 0.05) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .procedure-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--flag-gold);
+        box-shadow: 0 20px 50px rgba(0, 166, 81, 0.15);
+    }
+
+    .procedure-card:hover .procedure-glow {
+        opacity: 1;
+    }
+
+    .procedure-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(0, 166, 81, 0.3);
+    }
+
+    .procedure-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: var(--flag-white);
+        flex-shrink: 0;
+        border: 2px solid var(--flag-gold);
+    }
+
+    .procedure-icon.emergency {
+        background: linear-gradient(135deg, var(--flag-red), var(--flag-red-dark));
+    }
+
+    .procedure-icon.crime {
+        background: linear-gradient(135deg, var(--flag-gold), var(--flag-gold-dark));
+        color: var(--flag-black);
+    }
+
+    .procedure-icon.medical {
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-dark));
+    }
+
+    .procedure-header h4 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--flag-green);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .procedure-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .step {
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .step-number {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+        color: var(--flag-white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        border: 2px solid var(--flag-gold);
+    }
+
+    .step p {
+        margin: 0;
+        color: #CCCCCC;
+        line-height: 1.6;
+        padding-top: 6px;
+        font-weight: 500;
+    }
+
+    /* Tips Section */
+    .tips-section {
+        margin-bottom: 60px;
+    }
+
+    .tips-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+    }
+
+    .tip-card {
+        background: linear-gradient(145deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+        border: 2px solid var(--flag-green);
+        border-radius: 16px;
+        padding: 25px;
+        text-align: center;
+        backdrop-filter: blur(15px);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .tip-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-gold));
+        border-radius: 16px 16px 0 0;
+    }
+
+    .tip-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 166, 81, 0.05) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .tip-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--flag-gold);
+        box-shadow: 0 20px 50px rgba(0, 166, 81, 0.15);
+    }
+
+    .tip-card:hover .tip-glow {
+        opacity: 1;
+    }
+
+    .tip-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+        color: var(--flag-white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin: 0 auto 20px;
+        box-shadow: 0 0 20px rgba(0, 166, 81, 0.3);
+        border: 2px solid var(--flag-gold);
+    }
+
+    .tip-card h5 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: var(--flag-green);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .tip-card p {
+        color: #CCCCCC;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.02));
+        border: 2px solid var(--flag-green);
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        backdrop-filter: blur(15px);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0, 166, 81, 0.1);
+    }
+
+    .quick-actions::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-gold), var(--flag-red));
+        border-radius: 16px 16px 0 0;
+    }
+
+    .actions-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .actions-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+        color: var(--flag-white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        border: 2px solid var(--flag-gold);
+    }
+
+    .actions-header h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--flag-green);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin: 0;
+        text-shadow: 0 0 10px rgba(0, 166, 81, 0.3);
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .action-btn {
+        background: linear-gradient(145deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+        color: var(--flag-green);
+        text-decoration: none;
+        padding: 25px 20px;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        border: 2px solid var(--flag-green);
+        font-weight: 700;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .action-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 166, 81, 0.05) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .action-btn:hover {
+        border-color: var(--flag-gold);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(0, 166, 81, 0.1);
+        color: var(--flag-green);
+        text-decoration: none;
+    }
+
+    .action-btn:hover .action-glow {
+        opacity: 1;
+    }
+
+    .action-btn i {
+        font-size: 28px;
+        color: var(--flag-green);
+    }
+
+    .action-btn span {
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .emergency-alert {
+            flex-direction: column;
+            text-align: center;
+            gap: 20px;
+            padding: 30px 20px;
+        }
+
+        .alert-content h2 {
+            font-size: 1.8rem;
+        }
+
+        .quick-dial {
+            grid-template-columns: 1fr;
+        }
+
+        .contacts-grid,
+        .stations-grid,
+        .procedures-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tips-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .contact-card,
+        .emergency-btn {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .station-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+
+        .emergency-container {
+            padding: 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .emergency-alert {
+            padding: 25px 15px;
+        }
+
+        .alert-content h2 {
+            font-size: 1.5rem;
+        }
+
+        .section-header h3 {
+            font-size: 1.8rem;
+        }
+
+        .contact-card,
+        .station-card,
+        .procedure-card,
+        .tip-card {
+            padding: 20px;
+        }
+
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    function copyNumber(number) {
+        // Remove formatting for clean copy
+        const cleanNumber = number.replace(/\D/g, '');
+        
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(number).then(() => {
+                showCopySuccess();
+            }).catch(() => {
+                fallbackCopy(number);
+            });
+        } else {
+            fallbackCopy(number);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showCopySuccess();
+    }
+
+    function showCopySuccess() {
+        // Create a temporary notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: linear-gradient(135deg, #00A651, #00C760);
+            color: #FFFFFF;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 166, 81, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid #FFD700;
+        `;
+        notification.textContent = 'Number copied to clipboard!';
+        
+        // Add slide-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+            style.remove();
+        }, 3000);
+    }
+
+    function shareContacts() {
+        const contactsText = `Emergency Contacts - St. Kitts and Nevis
+
+Emergency Services:
+🚨 Police Emergency: 911
+🔥 Fire Department: 333
+🚑 Medical Emergency: 911
+
+Police Stations:
+📍 Police Headquarters: (869) 465-2241
+📍 Nevis Police: (869) 469-5391
+📍 Sandy Point Station: (869) 465-6140
+
+Other Important Numbers:
+🏥 JNF General Hospital: (869) 465-2551
+⚓ Coast Guard: (869) 465-8973
+💜 Crisis Helpline: (869) 465-2945
+🕵️ Crime Stoppers: (869) 707-7463
+
+Download SECURO app for crime reporting and safety information.`;
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'Emergency Contacts - St. Kitts and Nevis',
+                text: contactsText
+            }).catch(console.error);
+        } else {
+            // Fallback to copy to clipboard
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(contactsText).then(() => {
+                    showCopySuccess();
+                });
+            } else {
+                fallbackCopy(contactsText);
+            }
+        }
+    }
+
+    // Enhanced interactions
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('St. Kitts & Nevis Emergency Services page loaded');
+        
+        // Add dynamic glow effects
+        const cards = document.querySelectorAll('.contact-card, .station-card, .tip-card, .procedure-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 25px 60px rgba(0, 166, 81, 0.2)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.3)';
+            });
+        });
+
+        // Enhanced button interactions
+        const buttons = document.querySelectorAll('.call-btn, .copy-btn, .quick-call, .action-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Create ripple effect
+                const ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: 20px;
+                    height: 20px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                const rect = this.getBoundingClientRect();
+                ripple.style.left = (e.clientX - rect.left - 10) + 'px';
+                ripple.style.top = (e.clientY - rect.top - 10) + 'px';
+                
+                this.style.position = 'relative';
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}

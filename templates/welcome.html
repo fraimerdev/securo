@@ -1,0 +1,1581 @@
+{% extends "base.html" %}
+
+{% block title %}SECURO - Advanced Crime Prevention Platform{% endblock %}
+
+{% block header %}SECURO AI Platform{% endblock %}
+
+{% block content %}
+<div class="securo-home">
+    <!-- AI Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="hero-visual">
+                <div class="ai-avatar-container">
+                    <div class="avatar-rings">
+                        <div class="ring ring-outer"></div>
+                        <div class="ring ring-middle"></div>
+                        <div class="ring ring-inner"></div>
+                        <div class="avatar-core">
+                            <div class="shield-emblem">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="pulse-indicator"></div>
+                        </div>
+                    </div>
+                    <div class="status-badge">
+                        <div class="status-dot"></div>
+                        <span>ONLINE</span>
+                    </div>
+                </div>
+                
+                <div class="voice-visualizer">
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                </div>
+            </div>
+            
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <span>ROYAL ST. CHRISTOPHER & NEVIS POLICE FORCE</span>
+                </div>
+                <h1 class="hero-title">
+                    <span class="title-main">SECURO</span>
+                    <span class="title-sub">ARTIFICIAL INTELLIGENCE</span>
+                </h1>
+                <p class="hero-description">
+                    Advanced crime prevention and law enforcement assistance platform powered by 
+                    next-generation artificial intelligence. Providing real-time analytics, 
+                    secure reporting, and comprehensive case management for St. Kitts and Nevis.
+                </p>
+                
+                <div class="capability-tags">
+                    <div class="capability-tag">
+                        <i class="fas fa-microphone"></i>
+                        <span>Voice Interface</span>
+                    </div>
+                    <div class="capability-tag">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Real-Time Analytics</span>
+                    </div>
+                    <div class="capability-tag">
+                        <i class="fas fa-shield"></i>
+                        <span>Secure Communications</span>
+                    </div>
+                    <div class="capability-tag">
+                        <i class="fas fa-globe"></i>
+                        <span>Multi-Language Support</span>
+                    </div>
+                </div>
+                
+                <div class="hero-actions">
+                    <a href="/chatbot" class="primary-action">
+                        <span class="action-text">INITIATE AI CONVERSATION</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <button class="secondary-action" onclick="demonstrateVoice()">
+                        <i class="fas fa-volume-up"></i>
+                        <span>VOICE DEMONSTRATION</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Capabilities -->
+    <section class="capabilities-section">
+        <div class="section-header">
+            <h2>ADVANCED AI CAPABILITIES</h2>
+            <p>Comprehensive law enforcement tools powered by artificial intelligence</p>
+        </div>
+        
+        <div class="capabilities-grid">
+            <div class="capability-card primary">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>Crime Data Analysis</h3>
+                </div>
+                <div class="card-content">
+                    <p>Instant access to comprehensive crime statistics with real-time analysis, trend identification, and predictive modeling for St. Kitts and Nevis.</p>
+                    <div class="feature-list">
+                        <div class="feature-item">Real-time statistical analysis</div>
+                        <div class="feature-item">Historical trend mapping</div>
+                        <div class="feature-item">Predictive crime modeling</div>
+                        <div class="feature-item">International comparisons</div>
+                    </div>
+                    <div class="capability-demo">
+                        <div class="demo-input">"Analyze violent crime trends for Q3 2024"</div>
+                        <div class="demo-output">
+                            <strong>ANALYSIS COMPLETE:</strong> 234 violent crimes reported (+18.2% YoY)<br>
+                            Primary hotspot: Basseterre Central (45% of incidents)<br>
+                            Peak activity: 22:00-03:00 hours
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="capability-card secondary">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Interactive Visualization</h3>
+                </div>
+                <div class="card-content">
+                    <p>Dynamic chart generation and data visualization tools for comprehensive crime pattern analysis and strategic decision making.</p>
+                    <div class="feature-list">
+                        <div class="feature-item">Dynamic chart generation</div>
+                        <div class="feature-item">Geographic crime mapping</div>
+                        <div class="feature-item">Time-series analysis</div>
+                        <div class="feature-item">Custom report generation</div>
+                    </div>
+                    <div class="mini-visualization">
+                        <div class="viz-bars">
+                            <div class="viz-bar" style="height: 60%"></div>
+                            <div class="viz-bar" style="height: 45%"></div>
+                            <div class="viz-bar" style="height: 80%"></div>
+                            <div class="viz-bar" style="height: 70%"></div>
+                            <div class="viz-bar" style="height: 90%"></div>
+                        </div>
+                        <span class="viz-label">Crime trend visualization</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="capability-card tertiary">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3>Legal Reference System</h3>
+                </div>
+                <div class="card-content">
+                    <p>Comprehensive legal database with instant access to St. Kitts and Nevis law, police procedures, and constitutional references.</p>
+                    <div class="feature-list">
+                        <div class="feature-item">Constitutional law citations</div>
+                        <div class="feature-item">Police Act references</div>
+                        <div class="feature-item">Procedural guidance</div>
+                        <div class="feature-item">Legal precedent database</div>
+                    </div>
+                    <div class="capability-demo">
+                        <div class="demo-input">"Police powers of arrest without warrant"</div>
+                        <div class="demo-output">
+                            <strong>REFERENCE:</strong> Police Act Section 12<br>
+                            Authority for arrest without warrant in specific circumstances<br>
+                            <a href="#" class="legal-link">View complete constitutional text</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="capability-card quaternary">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Safety Intelligence</h3>
+                </div>
+                <div class="card-content">
+                    <p>Advanced safety analysis providing location-based risk assessment, emergency protocols, and tactical recommendations.</p>
+                    <div class="feature-list">
+                        <div class="feature-item">Geographic risk assessment</div>
+                        <div class="feature-item">Emergency response protocols</div>
+                        <div class="feature-item">Tactical recommendations</div>
+                        <div class="feature-item">Community safety guidance</div>
+                    </div>
+                    <div class="capability-demo">
+                        <div class="demo-input">"Risk assessment for Basseterre Central evening patrol"</div>
+                        <div class="demo-output">
+                            <strong>THREAT LEVEL:</strong> ELEVATED<br>
+                            Recommend increased patrol frequency 20:00-03:00<br>
+                            Focus areas: Market Street, Independence Square
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Voice Interface -->
+    <section class="voice-interface-section">
+        <div class="voice-container">
+            <div class="voice-visual">
+                <div class="voice-avatar">
+                    <div class="voice-pulse-rings">
+                        <div class="pulse-ring ring-1"></div>
+                        <div class="pulse-ring ring-2"></div>
+                        <div class="pulse-ring ring-3"></div>
+                    </div>
+                    <div class="voice-core">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="voice-info">
+                <h2>ADVANCED VOICE INTERFACE</h2>
+                <p>Natural language processing with high-fidelity text-to-speech capabilities designed for professional law enforcement communication.</p>
+                
+                <div class="voice-features">
+                    <div class="voice-feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-volume-up"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Natural Speech Synthesis</h4>
+                            <p>Professional female voice optimized for clear communication of critical safety and legal information.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="voice-feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-universal-access"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Accessibility Compliance</h4>
+                            <p>Full accessibility support ensuring SECURO is available to all law enforcement personnel and community members.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="voice-feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Adaptive Configuration</h4>
+                            <p>Customizable speech parameters including rate, pitch, and volume to match operational requirements.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="voice-demo-button" onclick="demonstrateVoice()">
+                    <div class="button-content">
+                        <i class="fas fa-play"></i>
+                        <span>DEMONSTRATE VOICE CAPABILITIES</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Access -->
+    <section class="platform-access">
+        <div class="access-header">
+            <h2>PLATFORM ACCESS</h2>
+            <p>Secure access to all SECURO capabilities and law enforcement tools</p>
+        </div>
+        
+        <div class="access-grid">
+            <a href="/chatbot" class="access-card primary-access">
+                <div class="access-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3>AI ASSISTANT</h3>
+                <p>Direct communication with SECURO artificial intelligence for immediate assistance and analysis</p>
+                <div class="access-action">
+                    <span>INITIATE SESSION</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <a href="/analytics" class="access-card">
+                <div class="access-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>ANALYTICS DASHBOARD</h3>
+                <p>Comprehensive crime statistics, trends, and analytical insights for strategic planning</p>
+                <div class="access-action">
+                    <span>VIEW ANALYTICS</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <a href="/hotspots" class="access-card">
+                <div class="access-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3>CRIME MAPPING</h3>
+                <p>Real-time geographic crime visualization and hotspot identification system</p>
+                <div class="access-action">
+                    <span>ACCESS MAPS</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <a href="/report-crime" class="access-card">
+                <div class="access-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>INCIDENT REPORTING</h3>
+                <p>Secure crime reporting system with anonymous and identified submission options</p>
+                <div class="access-action">
+                    <span>SUBMIT REPORT</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <a href="/emergency" class="access-card emergency">
+                <div class="access-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h3>EMERGENCY SERVICES</h3>
+                <p>Direct access to emergency contacts and rapid response communication channels</p>
+                <div class="access-action">
+                    <span>EMERGENCY ACCESS</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <a href="/about" class="access-card">
+                <div class="access-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h3>PLATFORM INFORMATION</h3>
+                <p>Comprehensive information about SECURO capabilities and law enforcement partnership</p>
+                <div class="access-action">
+                    <span>LEARN MORE</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Security Notice -->
+    <section class="security-notice">
+        <div class="notice-content">
+            <div class="security-emblem">
+                <div class="emblem-rings">
+                    <div class="security-ring"></div>
+                    <div class="security-ring"></div>
+                </div>
+                <div class="emblem-core">
+                    <i class="fas fa-shield"></i>
+                </div>
+            </div>
+            
+            <div class="notice-text">
+                <h3>SECURE & CONFIDENTIAL</h3>
+                <p>All communications are encrypted using military-grade security protocols. SECURO complies with international data protection standards and maintains strict confidentiality for all law enforcement activities.</p>
+                
+                <div class="security-features">
+                    <div class="security-item">
+                        <i class="fas fa-lock"></i>
+                        <span>End-to-End Encryption</span>
+                    </div>
+                    <div class="security-item">
+                        <i class="fas fa-user-secret"></i>
+                        <span>Anonymous Reporting</span>
+                    </div>
+                    <div class="security-item">
+                        <i class="fas fa-server"></i>
+                        <span>Secure Infrastructure</span>
+                    </div>
+                    <div class="security-item">
+                        <i class="fas fa-certificate"></i>
+                        <span>Compliance Certified</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    .securo-home {
+        max-width: 1400px;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+
+    /* Hero Section - Enhanced St. Kitts Flag Colors */
+    .hero-section {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #000000 0%, #1A1A1A 50%, #0F0F0F 100%);
+        overflow: hidden;
+        margin-bottom: 0;
+        border-radius: 0;
+    }
+
+    .hero-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .gradient-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(40px);
+        opacity: 0.6;
+        animation: float 20s infinite ease-in-out;
+    }
+
+    .orb-1 {
+        width: 300px;
+        height: 300px;
+        background: linear-gradient(45deg, #00A651, #00C760);
+        top: 10%;
+        right: 10%;
+        animation-delay: 0s;
+    }
+
+    .orb-2 {
+        width: 200px;
+        height: 200px;
+        background: linear-gradient(45deg, #E31E24, #FF2E34);
+        bottom: 20%;
+        left: 5%;
+        animation-delay: 8s;
+    }
+
+    .orb-3 {
+        width: 150px;
+        height: 150px;
+        background: linear-gradient(45deg, #FFD700, #FFF200);
+        top: 50%;
+        left: 50%;
+        animation-delay: 16s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(30px, -30px) rotate(90deg); }
+        50% { transform: translate(-20px, 20px) rotate(180deg); }
+        75% { transform: translate(-30px, -10px) rotate(270deg); }
+    }
+
+    .hero-content {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 80px;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+        padding: 0 60px;
+        width: 100%;
+    }
+
+    /* Enhanced AI Avatar with St. Kitts Flag Colors */
+    .ai-avatar-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .avatar-rings {
+        position: relative;
+        width: 250px;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ring {
+        position: absolute;
+        border: 3px solid #00A651;
+        border-radius: 50%;
+        opacity: 0.8;
+    }
+
+    .ring-outer {
+        width: 100%;
+        height: 100%;
+        animation: rotate-slow 30s linear infinite;
+        border-style: dashed;
+        border-color: #FFD700;
+    }
+
+    .ring-middle {
+        width: 80%;
+        height: 80%;
+        animation: rotate-medium 20s linear infinite reverse;
+        border-style: dotted;
+        border-color: #E31E24;
+    }
+
+    .ring-inner {
+        width: 60%;
+        height: 60%;
+        animation: rotate-fast 15s linear infinite;
+        border-color: #00A651;
+    }
+
+    @keyframes rotate-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes rotate-medium { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes rotate-fast { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .avatar-core {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #00A651, #00C760);
+        border: 3px solid #FFD700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 50px rgba(0, 166, 81, 0.6);
+        z-index: 3;
+    }
+
+    .shield-emblem {
+        font-size: 48px;
+        color: #FFFFFF;
+        animation: shield-glow-pulse 3s infinite ease-in-out;
+    }
+
+    @keyframes shield-glow-pulse {
+        0%, 100% { filter: drop-shadow(0 0 15px #FFD700); }
+        50% { filter: drop-shadow(0 0 30px #FFD700); }
+    }
+
+    .pulse-indicator {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 3px solid #FFD700;
+        border-radius: 50%;
+        animation: pulse-expand 2s infinite;
+    }
+
+    @keyframes pulse-expand {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    .status-badge {
+        background: rgba(0, 0, 0, 0.8);
+        color: #00A651;
+        border: 2px solid #FFD700;
+        padding: 10px 18px;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 1px;
+        backdrop-filter: blur(10px);
+    }
+
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        background: #00A651;
+        border: 1px solid #FFD700;
+        border-radius: 50%;
+        animation: status-pulse 2s infinite;
+    }
+
+    @keyframes status-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+
+    .voice-visualizer {
+        display: flex;
+        gap: 6px;
+        align-items: flex-end;
+        height: 40px;
+    }
+
+    .wave-bar {
+        width: 8px;
+        background: linear-gradient(to top, #00A651, #FFD700);
+        border-radius: 4px;
+        animation: wave-dance 2s infinite ease-in-out;
+    }
+
+    .wave-bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+    .wave-bar:nth-child(2) { height: 30px; animation-delay: 0.2s; }
+    .wave-bar:nth-child(3) { height: 25px; animation-delay: 0.4s; }
+    .wave-bar:nth-child(4) { height: 35px; animation-delay: 0.6s; }
+    .wave-bar:nth-child(5) { height: 28px; animation-delay: 0.8s; }
+
+    @keyframes wave-dance {
+        0%, 100% { transform: scaleY(0.5); opacity: 0.7; }
+        50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    /* Hero Text - Enhanced Flag Colors */
+    .hero-badge {
+        background: rgba(0, 166, 81, 0.1);
+        color: #00A651;
+        border: 2px solid #FFD700;
+        padding: 10px 18px;
+        border-radius: 25px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-align: center;
+        margin-bottom: 30px;
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-title {
+        margin-bottom: 30px;
+    }
+
+    .title-main {
+        display: block;
+        font-size: 4.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #00A651, #FFD700, #E31E24);
+        background-size: 200% 200%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: gradient-shift 4s ease-in-out infinite;
+        letter-spacing: 3px;
+        line-height: 0.9;
+    }
+
+    .title-sub {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: 400;
+        background: linear-gradient(45deg, #FFD700, #00A651);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 8px;
+        margin-top: 10px;
+        opacity: 0.9;
+    }
+
+    @keyframes gradient-shift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+
+    .hero-description {
+        color: #CCCCCC;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 40px;
+        max-width: 600px;
+    }
+
+    .capability-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 50px;
+    }
+
+    .capability-tag {
+        background: rgba(0, 166, 81, 0.1);
+        border: 1px solid #00A651;
+        color: #00A651;
+        padding: 12px 18px;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .capability-tag:hover {
+        background: rgba(255, 215, 0, 0.1);
+        border-color: #FFD700;
+        color: #FFD700;
+        transform: translateY(-2px);
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .primary-action {
+        background: linear-gradient(135deg, #00A651, #00C760);
+        color: #FFFFFF;
+        border: 2px solid #FFD700;
+        text-decoration: none;
+        padding: 18px 32px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-shadow: 0 8px 25px rgba(0, 166, 81, 0.3);
+    }
+
+    .primary-action:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(0, 166, 81, 0.4);
+        border-color: #FFFFFF;
+    }
+
+    .secondary-action {
+        background: rgba(227, 30, 36, 0.1);
+        color: #E31E24;
+        border: 2px solid #E31E24;
+        padding: 16px 32px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .secondary-action:hover {
+        background: rgba(227, 30, 36, 0.2);
+        border-color: #FFD700;
+        color: #FFD700;
+        transform: translateY(-2px);
+    }
+
+    /* Capabilities Section - Enhanced Flag Theme */
+    .capabilities-section {
+        padding: 100px 60px;
+        background: linear-gradient(180deg, #000000 0%, #111111 100%);
+        position: relative;
+    }
+
+    .capabilities-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(0,166,81,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 80px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .section-header h2 {
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(45deg, #00A651, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 20px;
+        letter-spacing: 2px;
+    }
+
+    .section-header p {
+        font-size: 1.2rem;
+        color: #CCCCCC;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .capabilities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 40px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .capability-card {
+        background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.03));
+        border: 2px solid rgba(0, 166, 81, 0.3);
+        border-radius: 12px;
+        padding: 35px;
+        transition: all 0.4s ease;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .capability-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #00A651, #FFD700, #E31E24);
+    }
+
+    .capability-card:hover {
+        transform: translateY(-8px);
+        border-color: #FFD700;
+        box-shadow: 0 20px 50px rgba(0, 166, 81, 0.2);
+    }
+
+    .capability-card.secondary:hover {
+        border-color: #E31E24;
+    }
+
+    .capability-card.tertiary:hover {
+        border-color: #FFD700;
+    }
+
+    .capability-card.quaternary:hover {
+        border-color: #E31E24;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #00A651, #00C760);
+        border: 2px solid #FFD700;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: #FFFFFF;
+    }
+
+    .capability-card.secondary .card-icon {
+        background: linear-gradient(135deg, #E31E24, #FF2E34);
+    }
+
+    .capability-card.tertiary .card-icon {
+        background: linear-gradient(135deg, #FFD700, #FFF200);
+        color: #000000;
+    }
+
+    .capability-card.quaternary .card-icon {
+        background: linear-gradient(135deg, #000000, #333333);
+        border-color: #E31E24;
+    }
+
+    .card-header h3 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    .card-content p {
+        color: #CCCCCC;
+        line-height: 1.7;
+        margin-bottom: 25px;
+        font-size: 1rem;
+    }
+
+    .feature-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .feature-item {
+        color: #00A651;
+        font-size: 0.9rem;
+        font-weight: 500;
+        position: relative;
+        padding-left: 20px;
+    }
+
+    .feature-item::before {
+        content: '●';
+        position: absolute;
+        left: 0;
+        color: #FFD700;
+        font-size: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .capability-demo {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(0, 166, 81, 0.3);
+        border-radius: 8px;
+        padding: 20px;
+        border-left: 4px solid #FFD700;
+    }
+
+    .demo-input {
+        color: #00A651;
+        font-style: italic;
+        font-weight: 600;
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+    }
+
+    .demo-output {
+        color: #CCCCCC;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .legal-link {
+        color: #FFD700;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .legal-link:hover {
+        text-decoration: underline;
+        color: #FFF200;
+    }
+
+    .mini-visualization {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .viz-bars {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 8px;
+        height: 60px;
+        margin-bottom: 10px;
+    }
+
+    .viz-bar {
+        width: 12px;
+        background: linear-gradient(to top, #00A651, #FFD700);
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .viz-bar:hover {
+        background: linear-gradient(to top, #E31E24, #FFD700);
+    }
+
+    .viz-label {
+        color: #CCCCCC;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    /* Voice Interface Section - Flag Colors */
+    .voice-interface-section {
+        padding: 100px 60px;
+        background: linear-gradient(135deg, #111111 0%, #000000 100%);
+        position: relative;
+    }
+
+    .voice-container {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 80px;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .voice-visual {
+        display: flex;
+        justify-content: center;
+    }
+
+    .voice-avatar {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .voice-pulse-rings {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
+    .pulse-ring {
+        position: absolute;
+        border: 2px solid #00A651;
+        border-radius: 50%;
+        opacity: 0.6;
+        animation: voice-pulse 3s infinite;
+    }
+
+    .ring-1 {
+        width: 100%;
+        height: 100%;
+        animation-delay: 0s;
+        border-color: #FFD700;
+    }
+
+    .ring-2 {
+        width: 75%;
+        height: 75%;
+        top: 12.5%;
+        left: 12.5%;
+        animation-delay: 1s;
+        border-color: #E31E24;
+    }
+
+    .ring-3 {
+        width: 50%;
+        height: 50%;
+        top: 25%;
+        left: 25%;
+        animation-delay: 2s;
+        border-color: #00A651;
+    }
+
+    @keyframes voice-pulse {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.2); opacity: 0.2; }
+    }
+
+    .voice-core {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #00A651, #00C760);
+        border: 2px solid #FFD700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: #FFFFFF;
+        z-index: 2;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    }
+
+    .voice-info h2 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: linear-gradient(45deg, #00A651, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 25px;
+        letter-spacing: 1px;
+    }
+
+    .voice-info p {
+        color: #CCCCCC;
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin-bottom: 40px;
+    }
+
+    .voice-features {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .voice-feature {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .voice-feature .feature-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #00A651, #00C760);
+        border: 1px solid #FFD700;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: #FFFFFF;
+        flex-shrink: 0;
+    }
+
+    .feature-content h4 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin-bottom: 8px;
+    }
+
+    .feature-content p {
+        color: #CCCCCC;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .voice-demo-button {
+        background: linear-gradient(135deg, #E31E24, #FF2E34);
+        color: #FFFFFF;
+        border: 2px solid #FFD700;
+        border-radius: 8px;
+        padding: 18px 32px;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(227, 30, 36, 0.3);
+    }
+
+    .voice-demo-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(227, 30, 36, 0.4);
+        border-color: #FFFFFF;
+    }
+
+    .button-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Platform Access - Flag Colors */
+    .platform-access {
+        padding: 100px 60px;
+        background: linear-gradient(180deg, #000000 0%, #111111 100%);
+    }
+
+    .access-header {
+        text-align: center;
+        margin-bottom: 80px;
+    }
+
+    .access-header h2 {
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(45deg, #00A651, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 20px;
+        letter-spacing: 2px;
+    }
+
+    .access-header p {
+        font-size: 1.2rem;
+        color: #CCCCCC;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .access-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+    }
+
+    .access-card {
+        background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.03));
+        border: 2px solid rgba(0, 166, 81, 0.3);
+        border-radius: 12px;
+        padding: 35px;
+        text-decoration: none;
+        transition: all 0.4s ease;
+        backdrop-filter: blur(10px);
+        display: block;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .access-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #00A651, #FFD700);
+    }
+
+    .access-card:hover {
+        transform: translateY(-8px);
+        border-color: #FFD700;
+        box-shadow: 0 20px 50px rgba(0, 166, 81, 0.2);
+    }
+
+    .access-card.primary-access {
+        border-color: #00A651;
+        background: linear-gradient(145deg, rgba(0, 166, 81, 0.15), rgba(0, 166, 81, 0.08));
+    }
+
+    .access-card.primary-access::before {
+        background: linear-gradient(90deg, #00A651, #00C760);
+    }
+
+    .access-card.emergency {
+        border-color: #E31E24;
+        background: linear-gradient(145deg, rgba(227, 30, 36, 0.08), rgba(227, 30, 36, 0.03));
+    }
+
+    .access-card.emergency::before {
+        background: linear-gradient(90deg, #E31E24, #FF2E34);
+    }
+
+    .access-card.emergency:hover {
+        border-color: #FFD700;
+    }
+
+    .access-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #00A651, #00C760);
+        border: 2px solid #FFD700;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: #FFFFFF;
+        margin-bottom: 25px;
+    }
+
+    .access-card.emergency .access-icon {
+        background: linear-gradient(135deg, #E31E24, #FF2E34);
+        border-color: #FFD700;
+        color: #FFFFFF;
+    }
+
+    .access-card h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin-bottom: 15px;
+        letter-spacing: 0.5px;
+    }
+
+    .access-card p {
+        color: #CCCCCC;
+        line-height: 1.6;
+        margin-bottom: 25px;
+        font-size: 0.95rem;
+    }
+
+    .access-action {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #00A651;
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+
+    .access-card.emergency .access-action {
+        color: #E31E24;
+    }
+
+    /* Security Notice - Enhanced Flag Colors */
+    .security-notice {
+        padding: 80px 60px;
+        background: linear-gradient(135deg, #000000 0%, #1A1A1A 100%);
+    }
+
+    .notice-content {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 60px;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .security-emblem {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 200px;
+    }
+
+    .emblem-rings {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
+    .security-ring {
+        position: absolute;
+        border: 3px solid #00A651;
+        border-radius: 50%;
+        animation: security-rotate 25s linear infinite;
+    }
+
+    .security-ring:first-child {
+        width: 100%;
+        height: 100%;
+        border-style: dashed;
+        border-color: #FFD700;
+    }
+
+    .security-ring:last-child {
+        width: 70%;
+        height: 70%;
+        top: 15%;
+        left: 15%;
+        animation-direction: reverse;
+        animation-duration: 15s;
+        border-color: #E31E24;
+    }
+
+    @keyframes security-rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .emblem-core {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #00A651, #00C760);
+        border: 3px solid #FFD700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        color: #FFFFFF;
+        z-index: 2;
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
+    }
+
+    .notice-text h3 {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(45deg, #00A651, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+    }
+
+    .notice-text p {
+        color: #CCCCCC;
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin-bottom: 30px;
+    }
+
+    .security-features {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .security-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #00A651;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .security-item i {
+        width: 20px;
+        text-align: center;
+        color: #FFD700;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .hero-content,
+        .voice-container,
+        .notice-content {
+            grid-template-columns: 1fr;
+            gap: 60px;
+            text-align: center;
+        }
+
+        .capabilities-grid,
+        .access-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-section,
+        .capabilities-section,
+        .voice-interface-section,
+        .platform-access,
+        .security-notice {
+            padding: 60px 30px;
+        }
+
+        .title-main {
+            font-size: 3rem;
+        }
+
+        .section-header h2,
+        .voice-info h2,
+        .access-header h2,
+        .notice-text h3 {
+            font-size: 2rem;
+        }
+
+        .capability-tags {
+            justify-content: center;
+        }
+
+        .hero-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .primary-action,
+        .secondary-action {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+
+        .feature-list {
+            grid-template-columns: 1fr;
+        }
+
+        .security-features {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Dark Mode Specific Improvements with Flag Colors */
+    [data-theme="dark"] .hero-section {
+        background: linear-gradient(135deg, #000000 0%, #111111 50%, #0A0A0A 100%);
+    }
+
+    [data-theme="dark"] .capabilities-section {
+        background: linear-gradient(180deg, #000000 0%, #111111 100%);
+    }
+
+    [data-theme="dark"] .voice-interface-section {
+        background: linear-gradient(135deg, #111111 0%, #000000 100%);
+    }
+
+    [data-theme="dark"] .platform-access {
+        background: linear-gradient(180deg, #000000 0%, #111111 100%);
+    }
+
+    [data-theme="dark"] .security-notice {
+        background: linear-gradient(135deg, #000000 0%, #1A1A1A 100%);
+    }
+</style>
+
+<script>
+    function demonstrateVoice() {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(
+                "Greetings. I am SECURO, your advanced artificial intelligence assistant for the Royal St. Christopher and Nevis Police Force. I provide comprehensive crime analysis, legal reference support, and strategic intelligence for law enforcement operations across our beautiful twin-island nation. I am equipped with real-time data processing capabilities and maintain strict security protocols for all communications, reflecting the colors and values of our national flag. How may I assist you with your law enforcement objectives today?"
+            );
+            
+            // Wait for voices to load and select female voice
+            const setVoice = () => {
+                const voices = window.speechSynthesis.getVoices();
+                const femaleVoice = voices.find(voice => 
+                    voice.name.toLowerCase().includes('female') ||
+                    voice.name.toLowerCase().includes('woman') ||
+                    voice.name.toLowerCase().includes('samantha') ||
+                    voice.name.toLowerCase().includes('karen') ||
+                    voice.name.toLowerCase().includes('zira') ||
+                    voice.name.toLowerCase().includes('hazel') ||
+                    (voice.name.toLowerCase().includes('microsoft') && voice.name.toLowerCase().includes('aria'))
+                );
+                
+                if (femaleVoice) {
+                    utterance.voice = femaleVoice;
+                }
+                
+                utterance.rate = 0.85;
+                utterance.pitch = 1.15;
+                utterance.volume = 0.9;
+                
+                window.speechSynthesis.speak(utterance);
+            };
+            
+            if (window.speechSynthesis.getVoices().length > 0) {
+                setVoice();
+            } else {
+                window.speechSynthesis.addEventListener('voiceschanged', setVoice, { once: true });
+            }
+        } else {
+            alert('Voice synthesis is not supported in your browser environment.');
+        }
+    }
+
+    // Initialize voice system
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.getVoices();
+    }
+
+    // Add dynamic St. Kitts flag color effects
+    document.addEventListener('DOMContentLoaded', () => {
+        // Create flag color particles
+        const createFlagParticles = () => {
+            const flagColors = ['#00A651', '#E31E24', '#FFD700', '#FFFFFF'];
+            const hero = document.querySelector('.hero-section');
+            
+            setInterval(() => {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    width: 4px;
+                    height: 4px;
+                    background: ${flagColors[Math.floor(Math.random() * flagColors.length)]};
+                    border-radius: 50%;
+                    pointer-events: none;
+                    left: ${Math.random() * 100}%;
+                    top: 100%;
+                    opacity: 0.6;
+                    animation: floatUp 8s linear forwards;
+                    z-index: 1;
+                `;
+                
+                hero.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 8000);
+            }, 1000);
+        };
+        
+        // Add CSS for floating particles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes floatUp {
+                0% { transform: translateY(0); opacity: 0.6; }
+                50% { opacity: 1; }
+                100% { transform: translateY(-100vh); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        createFlagParticles();
+    });
+</script>
+{% endblock %}

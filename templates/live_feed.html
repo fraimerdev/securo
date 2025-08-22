@@ -1,0 +1,1262 @@
+{% extends "base.html" %}
+
+{% block title %}Live Crime Feed{% endblock %}
+
+{% block header %}LIVE CRIME FEED{% endblock %}
+
+{% block content %}
+<div class="live-feed-container">
+    <!-- Feed Header with Stats -->
+    <div class="feed-header">
+        <div class="feed-stats">
+            <div class="stat-card active-incidents">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="activeIncidents">12</div>
+                    <div class="stat-label">Active Incidents</div>
+                </div>
+            </div>
+            
+            <div class="stat-card recent-reports">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="recentReports">8</div>
+                    <div class="stat-label">Last 24 Hours</div>
+                </div>
+            </div>
+            
+            <div class="stat-card clearance-rate">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="clearanceRate">89%</div>
+                    <div class="stat-label">Resolution Rate</div>
+                </div>
+            </div>
+            
+            <div class="stat-card response-time">
+                <div class="stat-icon">
+                    <i class="fas fa-stopwatch"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="responseTime">8.3</div>
+                    <div class="stat-label">Avg Response (min)</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Feed Controls -->
+        <div class="feed-controls">
+            <div class="filter-controls">
+                <select class="filter-select" id="severityFilter">
+                    <option value="all">All Severity Levels</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High Priority</option>
+                    <option value="medium">Medium Priority</option>
+                    <option value="low">Low Priority</option>
+                </select>
+                
+                <select class="filter-select" id="locationFilter">
+                    <option value="all">All Locations</option>
+                    <option value="basseterre">Basseterre Central</option>
+                    <option value="frigate-bay">Frigate Bay</option>
+                    <option value="sandy-point">Sandy Point</option>
+                    <option value="charlestown">Charlestown (Nevis)</option>
+                </select>
+                
+                <select class="filter-select" id="typeFilter">
+                    <option value="all">All Crime Types</option>
+                    <option value="violent">Violent Crimes</option>
+                    <option value="property">Property Crimes</option>
+                    <option value="drug">Drug Offenses</option>
+                    <option value="fraud">Fraud</option>
+                    <option value="traffic">Traffic Violations</option>
+                </select>
+            </div>
+            
+            <div class="action-controls">
+                <button class="btn btn-secondary" id="refreshFeed">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh Feed
+                </button>
+                
+                <button class="btn btn-primary" id="exportFeed">
+                    <i class="fas fa-download"></i>
+                    Export Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Feed Content -->
+    <div class="feed-content">
+        <!-- Auto-refresh indicator -->
+        <div class="auto-refresh-bar">
+            <div class="refresh-indicator">
+                <div class="pulse-dot"></div>
+                <span>Live Updates Active - Last refresh: <span id="lastRefresh">Just now</span></span>
+            </div>
+            <div class="refresh-controls">
+                <div class="data-source-info" id="dataSourceInfo">
+                    <i class="fas fa-database"></i>
+                    <span id="dataSourceText">Loading sources...</span>
+                </div>
+                <label class="auto-refresh-toggle">
+                    <input type="checkbox" id="autoRefresh" checked>
+                    <span class="toggle-slider"></span>
+                    Auto-refresh (30s)
+                </label>
+            </div>
+        </div>
+
+        <!-- Crime Feed Items -->
+        <div class="feed-items" id="feedItems">
+            <!-- Feed items will be populated by JavaScript -->
+        </div>
+
+        <!-- Load More Button -->
+        <div class="load-more-container">
+            <button class="btn btn-secondary" id="loadMore">
+                <i class="fas fa-chevron-down"></i>
+                Load Earlier Reports
+            </button>
+        </div>
+    </div>
+
+
+</div>
+
+<style>
+/* Enhanced Live Crime Feed with St. Kitts & Nevis Flag Colors */
+.live-feed-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.feed-header {
+    margin-bottom: 30px;
+}
+
+.feed-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.03));
+    border: 1px solid rgba(0, 166, 81, 0.2);
+    border-radius: 12px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary-green);
+}
+
+/* Red accent for active incidents (urgent) */
+.stat-card.active-incidents::before {
+    background: var(--accent-red);
+}
+
+.stat-card.active-incidents {
+    background: linear-gradient(145deg, rgba(227, 30, 36, 0.08), rgba(227, 30, 36, 0.03));
+    border-color: rgba(227, 30, 36, 0.2);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 166, 81, 0.4);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card.active-incidents:hover {
+    border-color: rgba(227, 30, 36, 0.4);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+/* Red icon for active incidents */
+.stat-card.active-incidents .stat-icon {
+    background: linear-gradient(135deg, var(--accent-red), var(--flag-red-light));
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--primary-green);
+    line-height: 1;
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+}
+
+/* Red numbers for active incidents */
+.stat-card.active-incidents .stat-number {
+    color: var(--accent-red);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.feed-controls {
+    background: rgba(0, 166, 81, 0.05);
+    border: 1px solid rgba(0, 166, 81, 0.15);
+    border-radius: 12px;
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 166, 81, 0.2);
+    background: var(--dark-gray);
+    color: var(--text-white);
+    font-weight: 500;
+    min-width: 180px;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(0, 166, 81, 0.1);
+}
+
+.action-controls {
+    display: flex;
+    gap: 12px;
+}
+
+.auto-refresh-bar {
+    background: linear-gradient(90deg, rgba(0, 255, 0, 0.1), rgba(0, 255, 0, 0.05));
+    border: 1px solid rgba(0, 255, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.refresh-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--success);
+    font-weight: 600;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.refresh-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.data-source-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.data-source-info.real-data {
+    background: rgba(0, 166, 81, 0.1);
+    color: var(--primary-green);
+    border: 1px solid rgba(0, 166, 81, 0.2);
+}
+
+.data-source-info.mixed-data {
+    background: rgba(255, 215, 0, 0.1);
+    color: var(--accent-gold);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.data-source-info.simulated-data {
+    background: rgba(227, 30, 36, 0.1);
+    color: var(--accent-red);
+    border: 1px solid rgba(227, 30, 36, 0.2);
+}
+
+.auto-refresh-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-white);
+}
+
+.auto-refresh-toggle input {
+    display: none;
+}
+
+.toggle-slider {
+    width: 50px;
+    height: 24px;
+    background: var(--dark-gray);
+    border-radius: 12px;
+    position: relative;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 166, 81, 0.2);
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: var(--text-gray);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.auto-refresh-toggle input:checked + .toggle-slider {
+    background: var(--primary-green);
+}
+
+.auto-refresh-toggle input:checked + .toggle-slider::before {
+    transform: translateX(24px);
+    background: #FFFFFF;
+}
+
+.feed-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.feed-item {
+    background: linear-gradient(145deg, rgba(0, 166, 81, 0.03), rgba(0, 166, 81, 0.01));
+    border: 1px solid rgba(0, 166, 81, 0.15);
+    border-radius: 12px;
+    padding: 25px;
+    position: relative;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.feed-item:hover {
+    border-color: rgba(0, 166, 81, 0.3);
+    transform: translateX(5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced severity-based styling with flag colors */
+.feed-item.critical {
+    border-left-color: var(--accent-red);
+    background: linear-gradient(145deg, rgba(227, 30, 36, 0.08), rgba(227, 30, 36, 0.03));
+    border-color: rgba(227, 30, 36, 0.2);
+}
+
+.feed-item.critical:hover {
+    border-color: rgba(227, 30, 36, 0.4);
+    box-shadow: 0 10px 25px rgba(227, 30, 36, 0.1);
+}
+
+.feed-item.high {
+    border-left-color: var(--flag-red-dark);
+    background: linear-gradient(145deg, rgba(199, 30, 36, 0.08), rgba(199, 30, 36, 0.03));
+    border-color: rgba(199, 30, 36, 0.2);
+}
+
+.feed-item.high:hover {
+    border-color: rgba(199, 30, 36, 0.4);
+}
+
+.feed-item.medium {
+    border-left-color: var(--accent-gold);
+    background: linear-gradient(145deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.03));
+}
+
+.feed-item.low {
+    border-left-color: var(--primary-green);
+    background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.03));
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.item-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-white);
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.data-source-indicator {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.data-source-indicator:hover {
+    opacity: 1;
+}
+
+.item-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: var(--text-gray);
+}
+
+.severity-badge {
+    background: var(--primary-green);
+    color: #ffffff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.severity-badge.critical {
+    background: var(--accent-red);
+    color: #FFFFFF;
+    animation: critical-pulse 2s infinite;
+}
+
+@keyframes critical-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(227, 30, 36, 0.7); }
+    50% { box-shadow: 0 0 0 5px rgba(227, 30, 36, 0); }
+}
+
+.severity-badge.high {
+    background: var(--flag-red-dark);
+    color: #FFFFFF;
+}
+
+.severity-badge.medium {
+    background: var(--accent-gold);
+    color: #000000;
+}
+
+.severity-badge.low {
+    background: var(--primary-green);
+    color: #ffffff;
+}
+
+.item-description {
+    color: var(--text-white);
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.item-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--text-gray);
+}
+
+.detail-item i {
+    color: var(--primary-green);
+    width: 16px;
+}
+
+/* Red icons for critical/urgent states */
+.feed-item.critical .detail-item i {
+    color: var(--accent-red);
+}
+
+.item-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 166, 81, 0.1);
+}
+
+.feed-item.critical .item-actions {
+    border-top-color: rgba(227, 30, 36, 0.2);
+}
+
+.action-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.action-btn.view {
+    background: rgba(0, 166, 81, 0.15);
+    color: var(--primary-green);
+    border: 1px solid rgba(0, 166, 81, 0.3);
+}
+
+.action-btn.assign {
+    background: rgba(255, 215, 0, 0.15);
+    color: var(--accent-gold);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.action-btn.update {
+    background: rgba(227, 30, 36, 0.15);
+    color: var(--accent-red);
+    border: 1px solid rgba(227, 30, 36, 0.3);
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.action-btn.view:hover {
+    background: rgba(0, 166, 81, 0.25);
+}
+
+.action-btn.assign:hover {
+    background: rgba(255, 215, 0, 0.25);
+}
+
+.action-btn.update:hover {
+    background: rgba(227, 30, 36, 0.25);
+}
+
+.load-more-container {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .feed-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-controls {
+        justify-content: stretch;
+    }
+    
+    .filter-select {
+        min-width: unset;
+        flex: 1;
+    }
+    
+    .auto-refresh-bar {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .refresh-controls {
+        justify-content: space-between;
+    }
+    
+    .item-actions {
+        justify-content: center;
+    }
+}
+
+/* Dark mode specific adjustments */
+[data-theme="dark"] .feed-item {
+    background: linear-gradient(145deg, rgba(0, 166, 81, 0.05), rgba(0, 166, 81, 0.02));
+}
+
+[data-theme="dark"] .feed-item.critical {
+    background: linear-gradient(145deg, rgba(227, 30, 36, 0.1), rgba(227, 30, 36, 0.05));
+}
+
+[data-theme="dark"] .feed-item.high {
+    background: linear-gradient(145deg, rgba(199, 30, 36, 0.1), rgba(199, 30, 36, 0.05));
+}
+
+/* Enhanced notification styles for different states */
+.notification-critical {
+    background: linear-gradient(135deg, var(--accent-red), var(--flag-red-light));
+    color: #ffffff;
+    border: 1px solid var(--accent-red);
+}
+
+.notification-success {
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    color: #ffffff;
+    border: 1px solid var(--primary-green);
+}
+
+.notification-warning {
+    background: linear-gradient(135deg, var(--accent-gold), var(--flag-gold-light));
+    color: #000000;
+    border: 1px solid var(--accent-gold);
+}
+</style>
+
+<script>
+// Enhanced Live Crime Feed with API Integration
+class LiveCrimeFeed {
+    constructor() {
+        this.feedData = [];
+        this.currentPage = 1;
+        this.itemsPerPage = 10;
+        this.autoRefreshInterval = null;
+        this.filters = {
+            severity: 'all',
+            location: 'all',
+            type: 'all'
+        };
+        
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+        this.checkSourceStatus(); // Check sources first
+        this.fetchFeedData();
+        this.startAutoRefresh();
+    }
+    
+    setupEventListeners() {
+        // Filter controls
+        document.getElementById('severityFilter').addEventListener('change', (e) => {
+            this.filters.severity = e.target.value;
+            this.currentPage = 1;
+            this.fetchFeedData();
+        });
+        
+        document.getElementById('locationFilter').addEventListener('change', (e) => {
+            this.filters.location = e.target.value;
+            this.currentPage = 1;
+            this.fetchFeedData();
+        });
+        
+        document.getElementById('typeFilter').addEventListener('change', (e) => {
+            this.filters.type = e.target.value;
+            this.currentPage = 1;
+            this.fetchFeedData();
+        });
+        
+        // Action controls
+        document.getElementById('refreshFeed').addEventListener('click', () => {
+            this.refreshFeed();
+        });
+        
+        document.getElementById('exportFeed').addEventListener('click', () => {
+            this.exportFeed();
+        });
+        
+        document.getElementById('loadMore').addEventListener('click', () => {
+            this.loadMore();
+        });
+        
+        // Auto-refresh toggle
+        document.getElementById('autoRefresh').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                this.startAutoRefresh();
+            } else {
+                this.stopAutoRefresh();
+            }
+        });
+    }
+    
+    async fetchFeedData(isRefresh = false) {
+        try {
+            const params = new URLSearchParams({
+                severity: this.filters.severity,
+                location: this.filters.location,
+                type: this.filters.type,
+                page: this.currentPage,
+                per_page: this.itemsPerPage
+            });
+            
+            const response = await fetch(`/api/live-feed-data?${params}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                if (isRefresh || this.currentPage === 1) {
+                    this.feedData = data.incidents;
+                } else {
+                    this.feedData = [...this.feedData, ...data.incidents];
+                }
+                
+                this.renderFeed();
+                this.updateStats(data.stats);
+                this.updateDataSourceInfo(data.data_info, data.stats.data_sources);
+                this.updateLastRefresh();
+                
+                // Handle load more button
+                const loadMoreBtn = document.getElementById('loadMore');
+                if (data.pagination.has_more) {
+                    loadMoreBtn.style.display = 'block';
+                } else {
+                    loadMoreBtn.style.display = 'none';
+                }
+                
+                if (isRefresh) {
+                    this.showNotification('Crime feed refreshed successfully', 'success');
+                }
+                
+                // Check data quality and show appropriate notifications
+                if (data.stats.data_sources) {
+                    const realDataCount = data.stats.data_sources.real_news || 0;
+                    const totalIncidents = data.incidents.length;
+                    
+                    if (realDataCount === 0 && totalIncidents > 0) {
+                        this.showNotification('Using simulated data - real sources temporarily unavailable', 'warning');
+                    } else if (realDataCount > 0) {
+                        if (isRefresh) {
+                            this.showNotification(`Updated with ${realDataCount} real incidents from St. Kitts & Nevis sources`, 'success');
+                        }
+                    }
+                }
+            } else {
+                throw new Error(data.error || 'Failed to fetch feed data');
+            }
+        } catch (error) {
+            console.error('Error fetching feed data:', error);
+            this.showNotification('Failed to update crime feed - using cached data', 'error');
+            this.updateDataSourceInfo({primary_source: 'Error'}, {real_news: 0, simulated: 1});
+        }
+    }
+    
+    updateDataSourceInfo(dataInfo, dataSources) {
+        const sourceInfoElement = document.getElementById('dataSourceInfo');
+        const sourceTextElement = document.getElementById('dataSourceText');
+        
+        if (!dataInfo || !dataSources) {
+            sourceTextElement.textContent = 'Source info unavailable';
+            return;
+        }
+        
+        const realCount = dataSources.real_news || 0;
+        const trendCount = dataSources.trend_based || 0;
+        const simulatedCount = dataSources.simulated || 0;
+        const totalCount = realCount + trendCount + simulatedCount;
+        
+        // Remove existing status classes
+        sourceInfoElement.classList.remove('real-data', 'mixed-data', 'simulated-data');
+        
+        if (realCount > 0 && simulatedCount === 0) {
+            // Mostly real data
+            sourceInfoElement.classList.add('real-data');
+            sourceTextElement.textContent = `${realCount} real incidents from SK&N sources`;
+        } else if (realCount > 0) {
+            // Mixed data
+            sourceInfoElement.classList.add('mixed-data');
+            sourceTextElement.textContent = `${realCount} real, ${trendCount + simulatedCount} supplemental`;
+        } else {
+            // Simulated data
+            sourceInfoElement.classList.add('simulated-data');
+            sourceTextElement.textContent = 'Simulated data - real sources checking...';
+        }
+        
+        // Add tooltip with detailed info
+        const tooltip = `Data Sources:\n• Real news: ${realCount}\n• Trend-based: ${trendCount}\n• Simulated: ${simulatedCount}\nPrimary: ${dataInfo.primary_source}`;
+        sourceInfoElement.title = tooltip;
+    }
+    
+    renderFeed() {
+        const feedContainer = document.getElementById('feedItems');
+        feedContainer.innerHTML = '';
+        
+        this.feedData.forEach(item => {
+            const feedItem = this.createFeedItem(item);
+            feedContainer.appendChild(feedItem);
+        });
+    }
+    
+    createFeedItem(item) {
+        const div = document.createElement('div');
+        div.className = `feed-item ${item.severity}`;
+        
+        const timeAgo = this.getTimeAgo(new Date(item.timestamp));
+        const statusIcon = item.status === 'Active' ? 'fa-exclamation-circle' : 'fa-check-circle';
+        const statusColor = item.status === 'Active' ? (item.severity === 'critical' ? 'var(--accent-red)' : 'var(--warning)') : 'var(--success)';
+        
+        // Determine data source indicator
+        const dataSourceIcon = this.getDataSourceIcon(item);
+        const dataSourceTooltip = this.getDataSourceTooltip(item);
+        
+        div.innerHTML = `
+            <div class="item-header">
+                <div>
+                    <div class="item-title">
+                        ${item.title}
+                        <span class="data-source-indicator" title="${dataSourceTooltip}">
+                            ${dataSourceIcon}
+                        </span>
+                    </div>
+                    <div class="item-meta">
+                        <span><i class="fas fa-clock"></i> ${timeAgo}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ${item.location_name}</span>
+                        <span><i class="fas fa-badge"></i> ${item.officer}</span>
+                        ${item.source ? `<span><i class="fas fa-newspaper"></i> ${item.source}</span>` : ''}
+                    </div>
+                </div>
+                <div class="severity-badge ${item.severity}">${item.severity}</div>
+            </div>
+            
+            <div class="item-description">${item.description}</div>
+            
+            <div class="item-details">
+                <div class="detail-item">
+                    <i class="fas fa-tag"></i>
+                    <span>Case #${item.id}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas ${statusIcon}" style="color: ${statusColor}"></i>
+                    <span>${item.status}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-sort-numeric-up"></i>
+                    <span>Priority ${item.priority}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-layer-group"></i>
+                    <span>${item.type_name}</span>
+                </div>
+                ${item.response_time ? `
+                <div class="detail-item">
+                    <i class="fas fa-stopwatch"></i>
+                    <span>Response: ${item.response_time} min</span>
+                </div>
+                ` : ''}
+            </div>
+            
+            <div class="item-actions">
+                <button class="action-btn view" onclick="viewIncident('${item.id}')">
+                    <i class="fas fa-eye"></i>
+                    View Details
+                </button>
+                ${item.source_url ? `
+                    <button class="action-btn view" onclick="window.open('${item.source_url}', '_blank')">
+                        <i class="fas fa-external-link-alt"></i>
+                        Source Article
+                    </button>
+                ` : ''}
+                ${item.status === 'Active' ? `
+                    <button class="action-btn assign" onclick="assignOfficer('${item.id}')">
+                        <i class="fas fa-user-plus"></i>
+                        Assign Officer
+                    </button>
+                    <button class="action-btn update" onclick="updateStatus('${item.id}')">
+                        <i class="fas fa-edit"></i>
+                        Update Status
+                    </button>
+                ` : ''}
+            </div>
+        `;
+        
+        return div;
+    }
+    
+    getDataSourceIcon(item) {
+        const dataType = item.data_type || 'unknown';
+        
+        switch(dataType) {
+            case 'real_news':
+                return '<i class="fas fa-newspaper" style="color: var(--primary-green);"></i>';
+            case 'trend_based':
+                return '<i class="fas fa-chart-line" style="color: var(--accent-gold);"></i>';
+            case 'supplemental_realistic':
+                return '<i class="fas fa-info-circle" style="color: var(--accent-gold);"></i>';
+            case 'simulated_fallback':
+                return '<i class="fas fa-robot" style="color: var(--accent-red);"></i>';
+            default:
+                return '<i class="fas fa-question-circle" style="color: var(--text-gray);"></i>';
+        }
+    }
+    
+    getDataSourceTooltip(item) {
+        const dataType = item.data_type || 'unknown';
+        const isOfficial = item.is_official ? ' (Official)' : '';
+        
+        switch(dataType) {
+            case 'real_news':
+                return `Real incident from ${item.source || 'news source'}${isOfficial}`;
+            case 'trend_based':
+                return 'Based on recent crime trends in St. Kitts & Nevis';
+            case 'supplemental_realistic':
+                return `Community/police update from ${item.source || 'official source'}`;
+            case 'simulated_fallback':
+                return 'Simulated data - real sources temporarily unavailable';
+            default:
+                return 'Data source information unavailable';
+        }
+    }
+    
+    async checkSourceStatus() {
+        try {
+            const response = await fetch('/api/crime-feed-sources');
+            const data = await response.json();
+            
+            if (data.success) {
+                console.log('Crime feed sources status:', data);
+                return data;
+            }
+        } catch (error) {
+            console.error('Error checking source status:', error);
+        }
+        return null;
+    }
+    
+    getTimeAgo(timestamp) {
+        const now = new Date();
+        const diffInMs = now - timestamp;
+        const diffInMin = Math.floor(diffInMs / 60000);
+        
+        if (diffInMin < 1) return 'Just now';
+        if (diffInMin < 60) return `${diffInMin} minutes ago`;
+        
+        const diffInHours = Math.floor(diffInMin / 60);
+        if (diffInHours < 24) return `${diffInHours} hours ago`;
+        
+        const diffInDays = Math.floor(diffInHours / 24);
+        return `${diffInDays} days ago`;
+    }
+    
+    updateStats(stats) {
+        document.getElementById('activeIncidents').textContent = stats.active_incidents;
+        document.getElementById('recentReports').textContent = stats.recent_24h;
+        document.getElementById('clearanceRate').textContent = `${stats.clearance_rate}%`;
+        document.getElementById('responseTime').textContent = stats.avg_response_time;
+        
+        // Animate stat updates
+        ['activeIncidents', 'recentReports', 'clearanceRate', 'responseTime'].forEach(id => {
+            this.animateStatUpdate(id);
+        });
+    }
+    
+    animateStatUpdate(elementId) {
+        const element = document.getElementById(elementId);
+        element.style.transform = 'scale(1.1)';
+        element.style.color = elementId === 'activeIncidents' ? 'var(--accent-red)' : 'var(--primary-green)';
+        setTimeout(() => {
+            element.style.transform = 'scale(1)';
+            element.style.color = '';
+        }, 300);
+    }
+    
+    refreshFeed() {
+        this.currentPage = 1;
+        this.fetchFeedData(true);
+    }
+    
+    loadMore() {
+        this.currentPage++;
+        this.fetchFeedData();
+    }
+    
+    startAutoRefresh() {
+        this.stopAutoRefresh();
+        this.autoRefreshInterval = setInterval(() => {
+            this.refreshFeed();
+        }, 30000); // 30 seconds
+    }
+    
+    stopAutoRefresh() {
+        if (this.autoRefreshInterval) {
+            clearInterval(this.autoRefreshInterval);
+            this.autoRefreshInterval = null;
+        }
+    }
+    
+    updateLastRefresh() {
+        document.getElementById('lastRefresh').textContent = 'Just now';
+    }
+    
+    async exportFeed() {
+        try {
+            const params = new URLSearchParams({
+                severity: this.filters.severity,
+                location: this.filters.location,
+                type: this.filters.type,
+                page: 1,
+                per_page: 1000 // Get all data for export
+            });
+            
+            const response = await fetch(`/api/live-feed-data?${params}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                const csvContent = this.convertToCSV(data.incidents);
+                this.downloadCSV(csvContent, `crime_feed_${new Date().toISOString().split('T')[0]}.csv`);
+                this.showNotification('Crime feed data exported successfully', 'success');
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            this.showNotification('Failed to export crime feed data', 'error');
+        }
+    }
+    
+    convertToCSV(data) {
+        const headers = ['ID', 'Timestamp', 'Type', 'Severity', 'Location', 'Title', 'Status', 'Officer', 'Priority'];
+        const csvRows = [headers.join(',')];
+        
+        data.forEach(item => {
+            const row = [
+                item.id,
+                item.timestamp,
+                item.type,
+                item.severity,
+                item.location_name,
+                `"${item.title}"`,
+                item.status,
+                item.officer,
+                item.priority
+            ];
+            csvRows.push(row.join(','));
+        });
+        
+        return csvRows.join('\n');
+    }
+    
+    downloadCSV(content, filename) {
+        const blob = new Blob([content], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
+    
+    showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        `;
+        
+        // Apply flag colors based on notification type
+        switch(type) {
+            case 'success':
+                notification.className = 'notification-success';
+                notification.style.background = 'linear-gradient(135deg, #00A651, #00C760)';
+                notification.style.color = '#ffffff';
+                break;
+            case 'warning':
+                notification.className = 'notification-warning';
+                notification.style.background = 'linear-gradient(135deg, #FFD700, #FFED4E)';
+                notification.style.color = '#000000';
+                break;
+            case 'error':
+                notification.className = 'notification-critical';
+                notification.style.background = 'linear-gradient(135deg, #E31E24, #FF2E34)';
+                notification.style.color = '#ffffff';
+                break;
+            default:
+                notification.style.background = 'linear-gradient(135deg, #00A651, #00C760)';
+                notification.style.color = '#ffffff';
+        }
+        
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => notification.remove(), 300);
+        }, 4000);
+    }
+}
+
+// Global functions for incident actions
+async function viewIncident(incidentId) {
+    try {
+        const response = await fetch('/api/incident-action', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                incident_id: incidentId,
+                action: 'view_details'
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.liveFeed.showNotification(data.message, 'info');
+        }
+    } catch (error) {
+        console.error('View incident error:', error);
+        window.liveFeed.showNotification('Failed to view incident details', 'error');
+    }
+}
+
+async function assignOfficer(incidentId) {
+    try {
+        const response = await fetch('/api/incident-action', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                incident_id: incidentId,
+                action: 'assign'
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.liveFeed.showNotification(data.message, 'success');
+        }
+    } catch (error) {
+        console.error('Assign officer error:', error);
+        window.liveFeed.showNotification('Failed to assign officer', 'error');
+    }
+}
+
+async function updateStatus(incidentId) {
+    try {
+        const response = await fetch('/api/incident-action', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                incident_id: incidentId,
+                action: 'update_status'
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.liveFeed.showNotification(data.message, 'success');
+        }
+    } catch (error) {
+        console.error('Update status error:', error);
+        window.liveFeed.showNotification('Failed to update status', 'error');
+    }
+}
+
+// Initialize the live crime feed when page loads
+let liveFeed;
+document.addEventListener('DOMContentLoaded', () => {
+    liveFeed = new LiveCrimeFeed();
+    window.liveFeed = liveFeed; // Make it globally accessible
+});
+
+// Handle page visibility changes for auto-refresh
+document.addEventListener('visibilitychange', () => {
+    const autoRefreshCheckbox = document.getElementById('autoRefresh');
+    if (document.visibilityState === 'visible' && autoRefreshCheckbox?.checked) {
+        if (liveFeed) {
+            liveFeed.startAutoRefresh();
+        }
+    } else if (document.visibilityState === 'hidden') {
+        if (liveFeed) {
+            liveFeed.stopAutoRefresh();
+        }
+    }
+});
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+</script>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+console.log('Live Crime Feed page loaded successfully');
+</script>
+{% endblock %}

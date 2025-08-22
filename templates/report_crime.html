@@ -1,0 +1,930 @@
+{% extends "base.html" %}
+
+{% block title %}Report Crime{% endblock %}
+
+{% block header %}Report a Crime{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        /* St. Kitts & Nevis Flag Colors */
+        --flag-green: #00A651;
+        --flag-green-light: #00C760;
+        --flag-green-dark: #008A44;
+        --flag-red: #E31E24;
+        --flag-red-light: #FF2E34;
+        --flag-red-dark: #C01E24;
+        --flag-gold: #FFD700;
+        --flag-gold-light: #FFED4E;
+        --flag-gold-dark: #E6C200;
+        --flag-black: #000000;
+        --flag-white: #FFFFFF;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .report-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    /* Animated Background with Flag Colors */
+    .page-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: -1;
+        background: linear-gradient(135deg, var(--flag-black) 0%, #111 50%, var(--flag-black) 100%);
+    }
+
+    .flag-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            linear-gradient(45deg, transparent 30%, rgba(0, 166, 81, 0.02) 32%, rgba(0, 166, 81, 0.02) 48%, transparent 50%),
+            linear-gradient(-45deg, transparent 30%, rgba(227, 30, 36, 0.02) 32%, rgba(227, 30, 36, 0.02) 48%, transparent 50%),
+            linear-gradient(90deg, transparent 45%, rgba(255, 215, 0, 0.01) 47%, rgba(255, 215, 0, 0.01) 53%, transparent 55%);
+        animation: subtleShift 40s infinite linear;
+    }
+
+    @keyframes subtleShift {
+        0% { transform: translateX(-100px) translateY(-100px); }
+        100% { transform: translateX(100px) translateY(100px); }
+    }
+
+    .gradient-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.15;
+        animation: float 25s infinite ease-in-out;
+    }
+
+    .orb-1 {
+        width: 400px;
+        height: 400px;
+        background: linear-gradient(45deg, var(--flag-green), var(--flag-green-light));
+        top: 10%;
+        right: 10%;
+        animation-delay: 0s;
+    }
+
+    .orb-2 {
+        width: 300px;
+        height: 300px;
+        background: linear-gradient(45deg, var(--flag-red), var(--flag-red-light));
+        bottom: 20%;
+        left: 5%;
+        animation-delay: 12s;
+    }
+
+    .orb-3 {
+        width: 250px;
+        height: 250px;
+        background: linear-gradient(45deg, var(--flag-gold), var(--flag-gold-light));
+        top: 50%;
+        left: 50%;
+        animation-delay: 8s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(30px, -30px) rotate(90deg); }
+        50% { transform: translate(-20px, 20px) rotate(180deg); }
+        75% { transform: translate(-30px, -10px) rotate(270deg); }
+    }
+
+    /* Header Section */
+    .report-header {
+        background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.02));
+        border: 2px solid var(--flag-green);
+        border-radius: 12px;
+        padding: 40px;
+        margin-bottom: 40px;
+        backdrop-filter: blur(15px);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0, 166, 81, 0.1);
+    }
+
+    .report-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-gold), var(--flag-red));
+        border-radius: 12px 12px 0 0;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .header-icon {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-rings {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
+    .ring {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.8;
+    }
+
+    .ring-outer {
+        width: 100%;
+        height: 100%;
+        border: 3px dashed var(--flag-gold);
+        animation: rotate-slow 20s linear infinite;
+    }
+
+    .ring-inner {
+        width: 70%;
+        height: 70%;
+        top: 15%;
+        left: 15%;
+        border: 2px solid var(--flag-green);
+        animation: rotate-fast 15s linear infinite reverse;
+    }
+
+    @keyframes rotate-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes rotate-fast { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .icon-core {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        color: var(--flag-white);
+        z-index: 2;
+        box-shadow: 0 0 30px rgba(0, 166, 81, 0.5);
+        border: 2px solid var(--flag-gold);
+    }
+
+    .header-text h2 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin-bottom: 15px;
+        color: var(--flag-green);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        text-shadow: 0 0 10px rgba(0, 166, 81, 0.3);
+    }
+
+    .header-text p {
+        font-size: 1.2rem;
+        color: #CCCCCC;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    /* Emergency Alert - Keep Red for Urgency */
+    .emergency-alert {
+        background: rgba(227, 30, 36, 0.1);
+        border: 2px solid var(--flag-red);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        color: var(--flag-red);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(227, 30, 36, 0.1);
+    }
+
+    .alert-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--flag-red);
+        color: var(--flag-white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        animation: pulse 2s infinite;
+        box-shadow: 0 0 20px rgba(227, 30, 36, 0.5);
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+    }
+
+    .alert-content {
+        flex: 1;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .emergency-call-btn {
+        background: linear-gradient(135deg, var(--flag-red), var(--flag-red-dark));
+        color: var(--flag-white);
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        letter-spacing: 1px;
+        box-shadow: 0 8px 25px rgba(227, 30, 36, 0.25);
+        border: 1px solid var(--flag-red-light);
+    }
+
+    .emergency-call-btn:hover {
+        background: linear-gradient(135deg, var(--flag-red-dark), var(--flag-red));
+        transform: translateY(-2px);
+        box-shadow: 0 12px 35px rgba(227, 30, 36, 0.35);
+        color: var(--flag-white);
+        text-decoration: none;
+    }
+
+    /* Section Headers */
+    .section-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .section-header h3 {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--flag-green);
+        margin-bottom: 15px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        text-shadow: 0 0 10px rgba(0, 166, 81, 0.3);
+    }
+
+    .header-line {
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-gold), var(--flag-red));
+        margin: 0 auto;
+        border-radius: 2px;
+    }
+
+    /* Report Type Cards */
+    .report-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 40px;
+        margin-bottom: 50px;
+    }
+
+    .report-type-card {
+        background: linear-gradient(145deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+        border: 2px solid var(--flag-green);
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .report-type-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-gold));
+        border-radius: 16px 16px 0 0;
+    }
+
+    .card-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 166, 81, 0.05) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .report-type-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--flag-gold);
+        box-shadow: 0 25px 60px rgba(0, 166, 81, 0.15);
+        cursor: pointer;
+    }
+
+    .report-type-card:hover .card-glow {
+        opacity: 1;
+    }
+
+    .type-icon {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        color: var(--flag-white);
+        border: 3px solid var(--flag-gold);
+    }
+
+    .type-icon.anonymous {
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-dark));
+    }
+
+    .type-icon.identified {
+        background: linear-gradient(135deg, var(--flag-gold), var(--flag-gold-dark));
+        color: var(--flag-black);
+    }
+
+    .icon-pulse {
+        position: absolute;
+        width: 120%;
+        height: 120%;
+        border: 2px solid rgba(255, 215, 0, 0.4);
+        border-radius: 50%;
+        animation: pulse-expand 3s infinite;
+        top: -10%;
+        left: -10%;
+    }
+
+    @keyframes pulse-expand {
+        0% { transform: scale(1); opacity: 0.8; }
+        100% { transform: scale(1.3); opacity: 0; }
+    }
+
+    .report-type-card h4 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: var(--flag-green);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .report-type-card p {
+        color: #CCCCCC;
+        margin-bottom: 25px;
+        line-height: 1.7;
+        font-size: 1rem;
+    }
+
+    .type-features {
+        list-style: none;
+        margin-bottom: 30px;
+        text-align: left;
+    }
+
+    .type-features li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+        color: #CCCCCC;
+        font-weight: 500;
+    }
+
+    .type-features i {
+        color: var(--flag-green);
+        width: 16px;
+        font-size: 14px;
+    }
+
+    .select-type-btn {
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+        color: var(--flag-white);
+        border: none;
+        border-radius: 12px;
+        padding: 15px 30px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        text-decoration: none;
+        position: relative;
+        z-index: 10;
+        box-shadow: 0 8px 25px rgba(0, 166, 81, 0.25);
+        border: 2px solid transparent;
+    }
+
+    .select-type-btn:hover {
+        background: linear-gradient(135deg, var(--flag-gold), var(--flag-gold-light));
+        color: var(--flag-black);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(255, 215, 0, 0.3);
+        text-decoration: none;
+        border-color: var(--flag-gold);
+    }
+
+    .select-type-btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 166, 81, 0.3);
+    }
+
+    .select-type-btn:active {
+        transform: translateY(-1px);
+    }
+
+    /* Privacy Notice */
+    .privacy-notice {
+        background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.02));
+        border: 2px solid var(--flag-green);
+        border-radius: 16px;
+        padding: 40px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 20px 50px rgba(0, 166, 81, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .privacy-notice::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--flag-green), var(--flag-gold), var(--flag-red));
+        border-radius: 16px 16px 0 0;
+    }
+
+    .notice-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(0, 166, 81, 0.3);
+    }
+
+    .notice-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: var(--flag-white);
+        box-shadow: 0 8px 25px rgba(0, 166, 81, 0.3);
+        border: 2px solid var(--flag-gold);
+    }
+
+    .notice-header h4 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--flag-green);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin: 0;
+        text-shadow: 0 0 10px rgba(0, 166, 81, 0.3);
+    }
+
+    .notice-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+    }
+
+    .notice-item {
+        text-align: center;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 166, 81, 0.2);
+    }
+
+    .notice-item:hover {
+        transform: translateY(-5px);
+        border-color: rgba(255, 215, 0, 0.4);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .item-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, rgba(0, 166, 81, 0.1), rgba(0, 166, 81, 0.05));
+        border: 2px solid var(--flag-green);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 20px;
+        color: var(--flag-green);
+        transition: all 0.3s ease;
+    }
+
+    .notice-item:hover .item-icon {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+        border-color: var(--flag-gold);
+        color: var(--flag-gold);
+    }
+
+    .notice-item h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--flag-green);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .notice-item p {
+        font-size: 0.9rem;
+        color: #CCCCCC;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Flag Pattern Overlay */
+    .flag-overlay {
+        position: absolute;
+        top: 50%;
+        right: -10%;
+        width: 200px;
+        height: 200px;
+        background: 
+            linear-gradient(45deg, var(--flag-green) 25%, transparent 25%),
+            linear-gradient(-45deg, var(--flag-red) 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, var(--flag-gold) 75%);
+        opacity: 0.03;
+        transform: rotate(15deg);
+        pointer-events: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .header-text h2 {
+            font-size: 2rem;
+        }
+
+        .report-types {
+            grid-template-columns: 1fr;
+        }
+
+        .notice-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .emergency-alert {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+        }
+
+        .report-container {
+            padding: 15px;
+        }
+
+        .report-header,
+        .privacy-notice {
+            padding: 25px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-text h2 {
+            font-size: 1.5rem;
+        }
+
+        .section-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .report-type-card {
+            padding: 25px;
+        }
+
+        .type-icon {
+            width: 80px;
+            height: 80px;
+            font-size: 32px;
+        }
+    }
+</style>
+
+<div class="report-container">
+    <!-- Animated Background -->
+    <div class="page-background">
+        <div class="flag-pattern"></div>
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Header Section -->
+    <div class="report-header">
+        <div class="flag-overlay"></div>
+        <div class="header-content">
+            <div class="header-icon">
+                <div class="icon-rings">
+                    <div class="ring ring-outer"></div>
+                    <div class="ring ring-inner"></div>
+                </div>
+                <div class="icon-core">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+            </div>
+            <div class="header-text">
+                <h2>SECURE CRIME REPORTING</h2>
+                <p>Help make St. Kitts and Nevis safer by reporting crimes confidentially and securely through the official RSCNPF system.</p>
+            </div>
+        </div>
+        
+        <div class="emergency-alert">
+            <div class="alert-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="alert-content">
+                <strong>EMERGENCY SITUATION?</strong> Call 911 immediately for crimes in progress or immediate danger.
+            </div>
+            <a href="tel:911" class="emergency-call-btn">
+                <i class="fas fa-phone"></i>
+                CALL 911 NOW
+            </a>
+        </div>
+    </div>
+
+    <!-- Report Type Selection -->
+    <div class="report-type-selection">
+        <div class="section-header">
+            <h3>CHOOSE REPORTING METHOD</h3>
+            <div class="header-line"></div>
+        </div>
+        
+        <div class="report-types">
+            <div class="report-type-card" onclick="navigateToAnonymous()">
+                <div class="card-glow"></div>
+                <div class="type-icon anonymous">
+                    <div class="icon-pulse"></div>
+                    <i class="fas fa-user-secret"></i>
+                </div>
+                <h4>ANONYMOUS REPORT</h4>
+                <p>Report crimes without revealing your identity. Complete confidentiality guaranteed by RSCNPF protocols.</p>
+                <ul class="type-features">
+                    <li><i class="fas fa-check"></i> No personal information required</li>
+                    <li><i class="fas fa-check"></i> Completely confidential</li>
+                    <li><i class="fas fa-check"></i> Cannot be traced back to you</li>
+                    <li><i class="fas fa-check"></i> RSCNPF privacy protected</li>
+                </ul>
+                <a href="/anonymous-report" class="select-type-btn" onclick="event.stopPropagation();">
+                    <span>SELECT ANONYMOUS</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="report-type-card" onclick="navigateToIdentified()">
+                <div class="card-glow"></div>
+                <div class="type-icon identified">
+                    <div class="icon-pulse"></div>
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h4>IDENTIFIED REPORT</h4>
+                <p>Report with your contact information for follow-up and case updates from RSCNPF officers.</p>
+                <ul class="type-features">
+                    <li><i class="fas fa-check"></i> Receive case updates</li>
+                    <li><i class="fas fa-check"></i> Police may contact for details</li>
+                    <li><i class="fas fa-check"></i> Faster investigation process</li>
+                    <li><i class="fas fa-check"></i> Direct RSCNPF communication</li>
+                </ul>
+                <a href="/identified-report" class="select-type-btn" onclick="event.stopPropagation();">
+                    <span>SELECT IDENTIFIED</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Notice -->
+    <div class="privacy-notice">
+        <div class="notice-header">
+            <div class="notice-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h4>PRIVACY & SECURITY NOTICE</h4>
+        </div>
+        <div class="notice-content">
+            <div class="notice-grid">
+                <div class="notice-item">
+                    <div class="item-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h5>Data Protection</h5>
+                    <p>All reports are encrypted and stored securely according to St. Kitts and Nevis data protection standards and RSCNPF protocols.</p>
+                </div>
+                <div class="notice-item">
+                    <div class="item-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h5>Confidentiality</h5>
+                    <p>Your information will only be shared with authorized RSCNPF personnel and relevant law enforcement agencies.</p>
+                </div>
+                <div class="notice-item">
+                    <div class="item-icon">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                    <h5>Anonymous Reports</h5>
+                    <p>Anonymous reports cannot be traced back to the reporter and require no personal information under RSCNPF guidelines.</p>
+                </div>
+                <div class="notice-item">
+                    <div class="item-icon">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h5>Legal Disclaimer</h5>
+                    <p>False reporting is a criminal offense under St. Kitts and Nevis law. Only report genuine crimes or suspicious activities.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Navigation functions
+    function navigateToAnonymous() {
+        // Add loading effect
+        const card = event.currentTarget;
+        const button = card.querySelector('.select-type-btn');
+        const originalText = button.innerHTML;
+        
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>LOADING...</span>';
+        button.style.background = 'linear-gradient(135deg, #00A651, #00C760)';
+        
+        setTimeout(() => {
+            window.location.href = '/anonymous-report';
+        }, 800);
+    }
+
+    function navigateToIdentified() {
+        // Add loading effect
+        const card = event.currentTarget;
+        const button = card.querySelector('.select-type-btn');
+        const originalText = button.innerHTML;
+        
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>LOADING...</span>';
+        button.style.background = 'linear-gradient(135deg, #00A651, #00C760)';
+        
+        setTimeout(() => {
+            window.location.href = '/identified-report';
+        }, 800);
+    }
+
+    // Enhanced interaction effects
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('RSCNPF Crime Reporting System loaded successfully');
+        
+        // Add enhanced button interactions
+        const buttons = document.querySelectorAll('.select-type-btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px) scale(1.02)';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(-3px) scale(1)';
+            });
+            
+            button.addEventListener('click', function(e) {
+                console.log('Report type selected:', this.href);
+                
+                // Create ripple effect
+                const ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: 20px;
+                    height: 20px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                const rect = this.getBoundingClientRect();
+                ripple.style.left = (e.clientX - rect.left - 10) + 'px';
+                ripple.style.top = (e.clientY - rect.top - 10) + 'px';
+                
+                this.style.position = 'relative';
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Enhanced card hover effects
+        const cards = document.querySelectorAll('.report-type-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 30px 70px rgba(0, 166, 81, 0.2)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.boxShadow = '0 25px 60px rgba(0, 166, 81, 0.15)';
+            });
+        });
+
+        // Add dynamic flag colors to orbs
+        const orbs = document.querySelectorAll('.gradient-orb');
+        setInterval(() => {
+            orbs.forEach((orb, index) => {
+                const opacity = 0.1 + Math.sin(Date.now() * 0.001 + index) * 0.05;
+                orb.style.opacity = opacity;
+            });
+        }, 100);
+
+        // Add scroll-based animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all major sections
+        document.querySelectorAll('.report-type-card, .privacy-notice').forEach(el => {
+            observer.observe(el);
+        });
+    });
+
+    // Add CSS for dynamic animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

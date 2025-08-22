@@ -1,0 +1,1254 @@
+{% extends "base.html" %}
+
+{% block title %}Anonymous Crime Report{% endblock %}
+
+{% block header %}Anonymous Crime Report{% endblock %}
+
+{% block content %}
+<style>
+    .report-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        position: relative;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    /* Loading Overlay - Enhanced with Flag Colors */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(10px);
+    }
+
+    .loading-content {
+        text-align: center;
+        color: #FFFFFF;
+    }
+
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(0, 166, 81, 0.3);
+        border-top: 4px solid #00A651;
+        border-right: 4px solid #FFD700;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Modal Styles - Enhanced Flag Colors */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        backdrop-filter: blur(15px);
+    }
+
+    .modal-content {
+        background: linear-gradient(145deg, rgba(0, 166, 81, 0.1), rgba(0, 166, 81, 0.05));
+        border: 2px solid #00A651;
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        max-width: 500px;
+        width: 90%;
+        backdrop-filter: blur(20px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modal-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #00A651, #FFD700, #E31E24);
+    }
+
+    .modal-content.success {
+        border-color: #00A651;
+        background: linear-gradient(145deg, rgba(0, 166, 81, 0.15), rgba(0, 166, 81, 0.08));
+    }
+
+    .modal-content.error {
+        border-color: #E31E24;
+        background: linear-gradient(145deg, rgba(227, 30, 36, 0.15), rgba(227, 30, 36, 0.08));
+    }
+
+    .modal-content.error::before {
+        background: linear-gradient(90deg, #E31E24, #FFD700, #00A651);
+    }
+
+    .modal-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 40px;
+        border: 3px solid #FFD700;
+    }
+
+    .modal-content.success .modal-icon {
+        background: linear-gradient(135deg, #00A651, #00C760);
+        color: #FFFFFF;
+    }
+
+    .modal-content.error .modal-icon {
+        background: linear-gradient(135deg, #E31E24, #FF2E34);
+        color: #FFFFFF;
+    }
+
+    .modal-content h3 {
+        color: #00A651;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .modal-content.success h3 {
+        color: #00A651;
+    }
+
+    .modal-content.error h3 {
+        color: #E31E24;
+    }
+
+    .modal-content p {
+        color: #CCCCCC;
+        margin-bottom: 25px;
+        line-height: 1.6;
+    }
+
+    /* Header Section - Enhanced Flag Theme */
+    .report-header {
+        background: linear-gradient(135deg, rgba(0, 166, 81, 0.1) 0%, rgba(0, 166, 81, 0.05) 100%);
+        border: 2px solid #00A651;
+        border-radius: 12px;
+        padding: 40px;
+        margin-bottom: 40px;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .report-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #00A651, #FFD700, #E31E24);
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .header-icon {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-core {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #6366F1, #8B5CF6);
+        border: 3px solid #FFD700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: #FFFFFF;
+        z-index: 2;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        position: relative;
+    }
+
+    .icon-core::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 2px solid #FFD700;
+        border-radius: 50%;
+        animation: pulse-ring 3s infinite;
+    }
+
+    @keyframes pulse-ring {
+        0% { transform: scale(1); opacity: 0.8; }
+        100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    .header-text h2 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin-bottom: 15px;
+        background: linear-gradient(45deg, #00A651, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .header-text p {
+        font-size: 1.2rem;
+        color: #CCCCCC;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .back-button {
+        background: rgba(0, 166, 81, 0.1);
+        color: #00A651;
+        border: 2px solid #00A651;
+        padding: 12px 25px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+    .back-button:hover {
+        background: rgba(0, 166, 81, 0.2);
+        border-color: #FFD700;
+        color: #FFD700;
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    /* Emergency Alert - Enhanced Red Theme */
+    .emergency-alert {
+        background: linear-gradient(135deg, rgba(227, 30, 36, 0.15), rgba(227, 30, 36, 0.08));
+        border: 2px solid #E31E24;
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        color: #E31E24;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .emergency-alert::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #E31E24, #FFD700);
+    }
+
+    .alert-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #E31E24, #FF2E34);
+        color: #FFFFFF;
+        border: 2px solid #FFD700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        animation: pulse 2s infinite;
+        flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .alert-content {
+        flex: 1;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .emergency-call-btn {
+        background: linear-gradient(135deg, #E31E24, #FF2E34);
+        color: #FFFFFF;
+        border: 2px solid #FFD700;
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        letter-spacing: 1px;
+    }
+
+    .emergency-call-btn:hover {
+        background: linear-gradient(135deg, #DC2626, #EF4444);
+        border-color: #FFFFFF;
+        transform: translateY(-2px);
+        text-decoration: none;
+        color: #FFFFFF;
+        box-shadow: 0 8px 25px rgba(227, 30, 36, 0.3);
+    }
+
+    /* Form Container - Enhanced Flag Colors */
+    .report-form-container {
+        background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.03));
+        border: 2px solid #00A651;
+        border-radius: 12px;
+        padding: 40px;
+        margin-bottom: 40px;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .report-form-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #00A651, #FFD700, #E31E24);
+    }
+
+    .form-header {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        margin-bottom: 40px;
+        padding-bottom: 25px;
+        border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .form-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #6366F1, #8B5CF6);
+        border: 3px solid #FFD700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: #FFFFFF;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    }
+
+    .form-title h3 {
+        font-size: 1.8rem;
+        font-weight: 900;
+        margin-bottom: 10px;
+        background: linear-gradient(45deg, #00A651, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .form-title p {
+        color: #CCCCCC;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Form Elements - Enhanced with Flag Colors */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-label {
+        font-weight: 700;
+        color: #00A651;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .form-input {
+        padding: 16px 20px;
+        border: 2px solid rgba(0, 166, 81, 0.4);
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: rgba(0, 0, 0, 0.4);
+        color: #FFFFFF;
+        backdrop-filter: blur(10px);
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #FFD700;
+        box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    .form-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    textarea.form-input {
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+    }
+
+    /* Form Actions - Enhanced Buttons */
+    .form-actions {
+        display: flex;
+        gap: 20px;
+        justify-content: flex-end;
+        margin-top: 40px;
+        padding-top: 25px;
+        border-top: 2px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .btn {
+        padding: 16px 32px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #00A651, #00C760);
+        color: #FFFFFF;
+        border: 2px solid #FFD700;
+        box-shadow: 0 4px 15px rgba(0, 166, 81, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 166, 81, 0.4);
+        border-color: #FFFFFF;
+    }
+
+    .btn-secondary {
+        background: rgba(0, 166, 81, 0.1);
+        color: #00A651;
+        border: 2px solid #00A651;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(0, 166, 81, 0.2);
+        border-color: #FFD700;
+        color: #FFD700;
+        transform: translateY(-2px);
+    }
+
+    /* Privacy Notice - Enhanced Design */
+    .privacy-notice {
+        background: linear-gradient(145deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.03));
+        border: 2px dashed #FFD700;
+        border-radius: 12px;
+        padding: 30px;
+        backdrop-filter: blur(10px);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .privacy-notice::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #FFD700, #00A651);
+    }
+
+    .privacy-notice h4 {
+        color: #FFD700;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .privacy-notice p {
+        color: #CCCCCC;
+        line-height: 1.6;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .header-text h2 {
+            font-size: 2rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .emergency-alert {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .alert-icon {
+            margin-bottom: 15px;
+        }
+    }
+
+    /* Enhanced Accessibility */
+    .form-input:focus-visible {
+        outline: 2px solid #FFD700;
+        outline-offset: 2px;
+    }
+
+    .btn:focus-visible {
+        outline: 2px solid #FFD700;
+        outline-offset: 2px;
+    }
+
+    /* Loading Enhancement */
+    .loading-content p {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #00A651;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="report-container">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Submitting your anonymous report...</p>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content success">
+            <div class="modal-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>Report Submitted Successfully!</h3>
+            <p id="successMessage">Your report has been submitted successfully!</p>
+            <div style="display: flex; gap: 20px; justify-content: center;">
+                <button onclick="CrimeReport.submitAnotherReport()" class="btn btn-secondary">Submit Another</button>
+                <button onclick="CrimeReport.redirectToReportPage()" class="btn btn-primary">Return to Options</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content error">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <h3>Error</h3>
+            <p id="errorMessage">An error occurred. Please try again.</p>
+            <button onclick="CrimeReport.closeModal()" class="btn btn-primary">Try Again</button>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <div class="report-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <div class="icon-core">
+                    <i class="fas fa-user-secret"></i>
+                </div>
+            </div>
+            <div class="header-text">
+                <h2>ANONYMOUS CRIME REPORT</h2>
+                <p>Report crimes without revealing your identity. Complete confidentiality guaranteed.</p>
+            </div>
+        </div>
+        
+        <div class="emergency-alert">
+            <div class="alert-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="alert-content">
+                <strong>EMERGENCY?</strong> Call 911 immediately for crimes in progress or immediate danger.
+            </div>
+            <a href="tel:911" class="emergency-call-btn">
+                <i class="fas fa-phone"></i>
+                CALL 911
+            </a>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <a href="/report-crime" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Back to Report Options
+            </a>
+        </div>
+    </div>
+
+    <!-- Anonymous Report Form -->
+    <div class="report-form-container">
+        <div class="form-header">
+            <div class="form-icon">
+                <i class="fas fa-user-secret"></i>
+            </div>
+            <div class="form-title">
+                <h3>ANONYMOUS CRIME REPORT</h3>
+                <p>All information will be kept strictly confidential. Your identity will not be recorded.</p>
+            </div>
+        </div>
+
+        <form id="anonymousCrimeForm">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label">
+                        <i class="fas fa-list"></i>
+                        CRIME TYPE *
+                    </label>
+                    <select name="crimeType" required class="form-input">
+                        <option value="">Select crime type...</option>
+                        <option value="theft">Theft/Robbery</option>
+                        <option value="assault">Assault/Violence</option>
+                        <option value="vandalism">Vandalism/Property Damage</option>
+                        <option value="drug">Drug-Related Offense</option>
+                        <option value="fraud">Fraud/Scam</option>
+                        <option value="cybercrime">Cybercrime</option>
+                        <option value="domestic">Domestic Violence</option>
+                        <option value="traffic">Traffic Violation</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-calendar"></i>
+                        DATE OF INCIDENT *
+                    </label>
+                    <input type="date" name="incidentDate" required class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-clock"></i>
+                        APPROXIMATE TIME
+                    </label>
+                    <input type="time" name="incidentTime" class="form-input">
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">
+                        <i class="fas fa-map-marker-alt"></i>
+                        LOCATION *
+                    </label>
+                    <input type="text" name="location" required class="form-input" placeholder="Street address, landmark, or general area">
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">
+                        <i class="fas fa-file-alt"></i>
+                        DESCRIPTION OF INCIDENT *
+                    </label>
+                    <textarea name="description" required class="form-input" rows="5" placeholder="Provide as much detail as possible about what happened..."></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">
+                        <i class="fas fa-users"></i>
+                        SUSPECT DESCRIPTION (if applicable)
+                    </label>
+                    <textarea name="suspectDescription" class="form-input" rows="3" placeholder="Physical description, clothing, vehicle details, etc."></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">
+                        <i class="fas fa-eye"></i>
+                        WITNESSES
+                    </label>
+                    <textarea name="witnesses" class="form-input" rows="2" placeholder="Any witnesses present? (No names needed for anonymous reports)"></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">
+                        <i class="fas fa-paperclip"></i>
+                        ADDITIONAL INFORMATION
+                    </label>
+                    <textarea name="additionalInfo" class="form-input" rows="3" placeholder="Any other relevant details..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="clearBtn">
+                    <i class="fas fa-undo"></i>
+                    CLEAR FORM
+                </button>
+                <button type="button" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    SUBMIT ANONYMOUS REPORT
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Privacy Notice -->
+    <div class="privacy-notice">
+        <h4>
+            <i class="fas fa-user-secret"></i>
+            ANONYMOUS REPORTING GUARANTEE
+        </h4>
+        <p>
+            Your anonymous report cannot be traced back to you. We do not collect any personal information, 
+            IP addresses, or tracking data. The police will receive your report without any identifying information.
+        </p>
+    </div>
+</div>
+
+<script>
+// Namespace to avoid conflicts with base.html
+window.CrimeReport = window.CrimeReport || {};
+
+// Safe element getter function with better error handling
+CrimeReport.safeGetElement = function(id) {
+    try {
+        const element = document.getElementById(id);
+        if (!element) {
+            console.warn(`Element with ID '${id}' not found`);
+            return null;
+        }
+        return element;
+    } catch (error) {
+        console.error(`Error getting element '${id}':`, error);
+        return null;
+    }
+};
+
+// Safe loading overlay functions
+CrimeReport.showLoading = function() {
+    console.log('Showing loading overlay');
+    try {
+        const overlay = CrimeReport.safeGetElement('loadingOverlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+        } else {
+            console.log('Loading overlay fallback - creating temporary loading indicator');
+            // Fallback: create temporary loading message
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'tempLoading';
+            loadingDiv.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:white;padding:20px;border-radius:8px;z-index:9999;';
+            loadingDiv.textContent = 'Submitting report...';
+            document.body.appendChild(loadingDiv);
+        }
+    } catch (error) {
+        console.error('Error showing loading:', error);
+    }
+};
+
+CrimeReport.hideLoading = function() {
+    console.log('Hiding loading overlay');
+    try {
+        const overlay = CrimeReport.safeGetElement('loadingOverlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+        
+        // Remove fallback loading if it exists
+        const tempLoading = CrimeReport.safeGetElement('tempLoading');
+        if (tempLoading) {
+            tempLoading.remove();
+        }
+    } catch (error) {
+        console.error('Error hiding loading:', error);
+    }
+};
+
+// Safe modal functions
+CrimeReport.showSuccessMessage = function(message) {
+    console.log('Showing success message:', message);
+    
+    try {
+        const messageEl = CrimeReport.safeGetElement('successMessage');
+        const modal = CrimeReport.safeGetElement('successModal');
+        
+        if (messageEl && modal) {
+            messageEl.textContent = message || 'Success!';
+            modal.style.display = 'flex';
+            
+            // Auto-focus the first button
+            setTimeout(() => {
+                const firstButton = modal.querySelector('.btn');
+                if (firstButton) firstButton.focus();
+            }, 100);
+        } else {
+            console.log('Success modal fallback');
+            alert('SUCCESS: ' + message + '\n\nWould you like to submit another report?');
+            if (confirm('Return to report options?')) {
+                window.location.href = '/report-crime';
+            }
+        }
+    } catch (error) {
+        console.error('Error showing success message:', error);
+        alert('SUCCESS: ' + message);
+    }
+};
+
+CrimeReport.showErrorMessage = function(message) {
+    console.log('Showing error message:', message);
+    
+    try {
+        const messageEl = CrimeReport.safeGetElement('errorMessage');
+        const modal = CrimeReport.safeGetElement('errorModal');
+        
+        if (messageEl && modal) {
+            messageEl.textContent = message || 'An error occurred.';
+            modal.style.display = 'flex';
+            
+            // Auto-focus the try again button
+            setTimeout(() => {
+                const tryAgainButton = modal.querySelector('.btn');
+                if (tryAgainButton) tryAgainButton.focus();
+            }, 100);
+        } else {
+            console.log('Error modal fallback');
+            alert('ERROR: ' + message);
+        }
+    } catch (error) {
+        console.error('Error showing error message:', error);
+        alert('ERROR: ' + message);
+    }
+};
+
+CrimeReport.closeModal = function() {
+    try {
+        const successModal = CrimeReport.safeGetElement('successModal');
+        const errorModal = CrimeReport.safeGetElement('errorModal');
+        
+        if (successModal) successModal.style.display = 'none';
+        if (errorModal) errorModal.style.display = 'none';
+    } catch (error) {
+        console.error('Error closing modal:', error);
+    }
+};
+
+CrimeReport.redirectToReportPage = function() {
+    console.log('Redirecting to report page');
+    try {
+        window.location.href = '/report-crime';
+    } catch (error) {
+        console.error('Error redirecting:', error);
+    }
+};
+
+CrimeReport.clearForm = function() {
+    try {
+        if (confirm('Are you sure you want to clear the form? All entered data will be lost.')) {
+            console.log('Clearing form');
+            
+            const form = CrimeReport.safeGetElement('anonymousCrimeForm');
+            if (!form) {
+                console.error('Form not found for clearing');
+                return;
+            }
+            
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.type !== 'button' && input.type !== 'submit') {
+                    input.value = '';
+                }
+            });
+            
+            // Reset date to today
+            const dateInput = form.querySelector('input[type="date"]');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+            }
+        }
+    } catch (error) {
+        console.error('Error clearing form:', error);
+    }
+};
+
+CrimeReport.submitAnotherReport = function() {
+    try {
+        CrimeReport.closeModal();
+        CrimeReport.clearForm();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (error) {
+        console.error('Error in submitAnotherReport:', error);
+        CrimeReport.clearForm();
+    }
+};
+
+// Enhanced form data collection with better error handling
+CrimeReport.collectFormData = function() {
+    console.log('=== COLLECTING FORM DATA ===');
+    
+    try {
+        const form = CrimeReport.safeGetElement('anonymousCrimeForm');
+        
+        if (!form) {
+            console.error('Form not found. Expected form ID: anonymousCrimeForm');
+            return null;
+        }
+        
+        console.log('Form found: anonymousCrimeForm');
+        
+        const data = {
+            reportType: 'anonymous',
+            timestamp: new Date().toISOString()
+        };
+        
+        console.log('Report type:', data.reportType);
+        
+        // Get all form inputs
+        const inputs = form.querySelectorAll('input, select, textarea');
+        console.log('Found', inputs.length, 'form inputs');
+        
+        inputs.forEach((input, index) => {
+            if (!input.name) {
+                console.log(`Input ${index} has no name attribute:`, input.tagName);
+                return;
+            }
+            
+            try {
+                if (input.type === 'checkbox') {
+                    data[input.name] = input.checked;
+                    console.log(`Checkbox ${input.name}:`, input.checked);
+                } else if (input.type === 'radio') {
+                    if (input.checked) {
+                        data[input.name] = input.value;
+                        console.log(`Radio ${input.name}:`, input.value);
+                    }
+                } else {
+                    data[input.name] = input.value ? input.value.trim() : '';
+                    console.log(`Input ${input.name}:`, data[input.name]);
+                }
+            } catch (inputError) {
+                console.error(`Error processing input ${input.name}:`, inputError);
+            }
+        });
+        
+        console.log('=== FINAL FORM DATA ===');
+        console.log(JSON.stringify(data, null, 2));
+        
+        return data;
+        
+    } catch (error) {
+        console.error('Error collecting form data:', error);
+        return null;
+    }
+};
+
+CrimeReport.submitToServerEnhanced = function(data) {
+    console.log('=== SUBMITTING TO SERVER ===');
+    console.log('Data being sent:', data);
+    
+    const baseUrl = window.location.origin;
+    const apiUrl = baseUrl + '/api/submit-report';
+    
+    console.log('API URL:', apiUrl);
+    console.log('Request method: POST');
+    console.log('Content-Type: application/json');
+    
+    // Add timeout to fetch request
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(data),
+        signal: controller.signal
+    })
+    .then(response => {
+        clearTimeout(timeoutId);
+        console.log('=== SERVER RESPONSE ===');
+        console.log('Status:', response.status);
+        console.log('Status Text:', response.statusText);
+        console.log('OK:', response.ok);
+        
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            return response.text().then(text => {
+                console.error('Non-JSON response:', text);
+                throw new Error(`Server returned non-JSON response: ${text}`);
+            });
+        }
+        
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                console.error('Server error response:', errorData);
+                throw new Error(`Server error (${response.status}): ${errorData.message || response.statusText}`);
+            }).catch(jsonError => {
+                // If JSON parsing fails, try to get text
+                return response.text().then(text => {
+                    console.error('Server error (could not parse JSON):', text);
+                    throw new Error(`Server error (${response.status}): ${text}`);
+                });
+            });
+        }
+        
+        return response.json();
+    })
+    .then(result => {
+        clearTimeout(timeoutId);
+        CrimeReport.hideLoading();
+        console.log('=== SUCCESS RESPONSE ===');
+        console.log('Full result:', result);
+        
+        if (result && result.success) {
+            const message = result.message || 'Your report has been submitted successfully!';
+            const reportId = result.report_id || 'N/A';
+            
+            console.log('Report ID:', reportId);
+            console.log('Success message:', message);
+            
+            CrimeReport.showSuccessMessage(message);
+            
+        } else {
+            console.error('Server returned unsuccessful result:', result);
+            const errorMsg = (result && result.message) || 'Unknown error occurred while submitting report.';
+            CrimeReport.showErrorMessage(errorMsg);
+        }
+    })
+    .catch(error => {
+        clearTimeout(timeoutId);
+        CrimeReport.hideLoading();
+        console.error('=== SUBMISSION ERROR ===');
+        console.error('Error type:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Full error:', error);
+        
+        let errorMessage = 'An error occurred while submitting your report.';
+        
+        if (error.name === 'AbortError') {
+            errorMessage = 'Request timed out. Please check your internet connection and try again.';
+        } else if (error.message.includes('Failed to fetch')) {
+            errorMessage = 'Cannot connect to server. Please check your internet connection or try again later.';
+        } else if (error.message.includes('Server error')) {
+            errorMessage = error.message;
+        } else if (error.message.includes('JSON')) {
+            errorMessage = 'Server response error. Please try again or contact support.';
+        }
+        
+        errorMessage += ' If the problem persists, please call (869) 465-2241 to report directly.';
+        
+        CrimeReport.showErrorMessage(errorMessage);
+    });
+};
+
+// Enhanced form submission function with better error handling and debugging
+CrimeReport.submitAnonymousForm = function() {
+    console.log('=== STARTING ANONYMOUS FORM SUBMISSION ===');
+    
+    try {
+        // Show loading immediately
+        CrimeReport.showLoading();
+        
+        // Collect form data
+        console.log('Step 1: Collecting form data...');
+        const data = CrimeReport.collectFormData();
+        
+        if (!data) {
+            console.error('Failed to collect form data');
+            CrimeReport.hideLoading();
+            CrimeReport.showErrorMessage('Error collecting form data. Please refresh the page and try again.');
+            return;
+        }
+        
+        console.log('Step 2: Form data collected:', data);
+        
+        // Validate required fields
+        console.log('Step 3: Validating required fields...');
+        const requiredFields = {
+            'crimeType': 'Crime Type',
+            'incidentDate': 'Incident Date', 
+            'location': 'Location',
+            'description': 'Description'
+        };
+        
+        const missingFields = [];
+        for (const [field, label] of Object.entries(requiredFields)) {
+            if (!data[field] || data[field].trim() === '') {
+                missingFields.push(label);
+            }
+        }
+        
+        if (missingFields.length > 0) {
+            console.log('Validation failed - missing fields:', missingFields);
+            CrimeReport.hideLoading();
+            CrimeReport.showErrorMessage('Please fill in all required fields: ' + missingFields.join(', '));
+            return;
+        }
+        
+        console.log('Step 4: Validation passed, submitting to server...');
+        
+        // Submit to server
+        CrimeReport.submitToServerEnhanced(data);
+        
+    } catch (error) {
+        console.error('Unexpected error in submitAnonymousForm:', error);
+        CrimeReport.hideLoading();
+        CrimeReport.showErrorMessage('Unexpected error: ' + error.message + '. Please try again.');
+    }
+};
+
+// Safe DOM ready function
+CrimeReport.initializeForm = function() {
+    console.log('Anonymous Crime report page loaded');
+    
+    try {
+        // Set current date as default
+        const dateInput = document.querySelector('input[type="date"]');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+            console.log('Date set to:', today);
+        }
+
+        // Setup submit button
+        const submitBtn = CrimeReport.safeGetElement('submitBtn');
+        if (submitBtn) {
+            console.log('Submit button found');
+            submitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Submit button clicked');
+                CrimeReport.submitAnonymousForm();
+            });
+        } else {
+            console.error('Submit button not found');
+        }
+
+        // Setup clear button
+        const clearBtn = CrimeReport.safeGetElement('clearBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                CrimeReport.clearForm();
+            });
+        }
+
+        // Auto-resize textareas
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        });
+        
+        console.log('Form initialization completed successfully');
+        
+    } catch (error) {
+        console.error('Error during form initialization:', error);
+    }
+};
+
+// Safe initialization
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', CrimeReport.initializeForm);
+} else {
+    CrimeReport.initializeForm();
+}
+</script>
+{% endblock %}

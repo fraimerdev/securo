@@ -1,0 +1,2038 @@
+{% extends "base.html" %}
+
+{% block title %}SECURO AI Assistant - Enhanced{% endblock %}
+
+{% block header %}SECURO AI Assistant - Chart Generation & Voice Enabled{% endblock %}
+
+{% block content %}
+<style>
+    /* Enhanced SECURO AI Chat Interface - St. Kitts Flag Color Scheme */
+    .chat-layout {
+        display: flex;
+        height: calc(100vh - 200px);
+        gap: 20px;
+        min-height: 600px;
+    }
+
+    /* Chat History Sidebar - Enhanced Green Theme */
+    .chat-sidebar {
+        width: 350px;
+        background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.03));
+        border: 2px solid rgba(0, 166, 81, 0.3);
+        border-radius: 12px;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 166, 81, 0.2);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-header {
+        background: linear-gradient(135deg, #00A651, #00C760);
+        color: #FFFFFF;
+        padding: 20px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid #FFD700;
+    }
+
+    .sidebar-controls {
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(0, 166, 81, 0.2);
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
+    }
+
+    .control-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .control-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .control-button {
+        flex: 1;
+        background: rgba(0, 166, 81, 0.15);
+        border: 2px solid rgba(0, 166, 81, 0.4);
+        border-radius: 6px;
+        padding: 8px 12px;
+        color: #00A651;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .control-button:hover {
+        background: rgba(0, 166, 81, 0.25);
+        border-color: #FFD700;
+        transform: translateY(-1px);
+    }
+
+    .control-button.active {
+        background: linear-gradient(135deg, #00A651, #00C760);
+        color: #FFFFFF;
+        border-color: #FFD700;
+    }
+
+    .control-button.voice-off {
+        background: rgba(227, 30, 36, 0.15);
+        border-color: rgba(227, 30, 36, 0.4);
+        color: #E31E24;
+    }
+
+    .control-button.voice-off:hover {
+        background: rgba(227, 30, 36, 0.25);
+        border-color: #FFD700;
+    }
+
+    .control-button.voice-off.active {
+        background: linear-gradient(135deg, #E31E24, #FF2E34);
+        color: #FFFFFF;
+        border-color: #FFD700;
+    }
+
+    .chat-history-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+    }
+
+    .chat-history-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chat-history-list::-webkit-scrollbar-track {
+        background: #000000;
+    }
+
+    .chat-history-list::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #00A651, #FFD700);
+        border-radius: 3px;
+    }
+
+    .new-chat-item {
+        margin-bottom: 20px;
+    }
+
+    .new-chat-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #00A651, #00C760);
+        color: #FFFFFF;
+        border: 2px solid #FFD700;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 4px 15px rgba(0, 166, 81, 0.3);
+    }
+
+    .new-chat-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 166, 81, 0.4);
+        border-color: #FFFFFF;
+    }
+
+    .history-item {
+        background: rgba(0, 166, 81, 0.08);
+        border: 1px solid rgba(0, 166, 81, 0.2);
+        margin-bottom: 10px;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .history-item:hover {
+        border-color: #FFD700;
+        background: rgba(0, 166, 81, 0.15);
+        transform: translateX(5px);
+    }
+
+    .history-item.active {
+        background: rgba(0, 166, 81, 0.2);
+        border: 2px solid #FFD700;
+    }
+
+    .history-header {
+        padding: 15px;
+    }
+
+    .history-title {
+        font-weight: 600;
+        color: #FFFFFF;
+        margin-bottom: 5px;
+        font-size: 0.95rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .history-meta {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .delete-chat {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(227, 30, 36, 0.3);
+        border: 1px solid #E31E24;
+        border-radius: 4px;
+        color: #E31E24;
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+        cursor: pointer;
+        opacity: 0;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .history-item:hover .delete-chat {
+        opacity: 1;
+    }
+
+    .delete-chat:hover {
+        background: rgba(227, 30, 36, 0.5);
+        border-color: #FFD700;
+        transform: scale(1.1);
+    }
+
+    /* Main Chat Area - Enhanced with Flag Colors */
+    .chat-main {
+        flex: 1;
+        background: linear-gradient(145deg, rgba(0, 166, 81, 0.05), rgba(0, 0, 0, 0.8));
+        border: 2px solid rgba(0, 166, 81, 0.3);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 166, 81, 0.2);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .chat-header {
+        background: linear-gradient(135deg, #000000, #333333);
+        color: #FFFFFF;
+        padding: 20px;
+        border-bottom: 2px solid #FFD700;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-title-area {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .ai-avatar {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #00A651, #00C760);
+        border: 2px solid #FFD700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #FFFFFF;
+        font-size: 18px;
+        position: relative;
+    }
+
+    .ai-avatar::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 2px solid #FFD700;
+        border-radius: 50%;
+        animation: pulse-ring 3s infinite;
+    }
+
+    @keyframes pulse-ring {
+        0% { transform: scale(1); opacity: 0.8; }
+        100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    .chat-info h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        background: linear-gradient(45deg, #00A651, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0 0 5px 0;
+    }
+
+    .chat-status {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #00A651;
+        border: 1px solid #FFD700;
+        border-radius: 50%;
+        animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .chat-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .header-button {
+        background: rgba(0, 166, 81, 0.15);
+        color: #00A651;
+        border: 1px solid #00A651;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .header-button:hover {
+        background: rgba(0, 166, 81, 0.25);
+        border-color: #FFD700;
+        transform: translateY(-1px);
+        color: #00A651;
+    }
+
+    .messages-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #000000;
+    }
+
+    .messages-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .messages-container::-webkit-scrollbar-track {
+        background: #000000;
+    }
+
+    .messages-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #00A651, #FFD700);
+        border-radius: 4px;
+    }
+
+    .welcome-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .welcome-icon {
+        font-size: 4rem;
+        background: linear-gradient(45deg, #00A651, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 20px;
+        opacity: 0.8;
+    }
+
+    .welcome-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #FFFFFF;
+    }
+
+    .welcome-subtitle {
+        font-size: 1rem;
+        max-width: 500px;
+        line-height: 1.5;
+        margin-bottom: 30px;
+    }
+
+    .quick-suggestions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        max-width: 600px;
+        width: 100%;
+    }
+
+    .suggestion-card {
+        background: rgba(0, 166, 81, 0.08);
+        border: 1px solid rgba(0, 166, 81, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: left;
+    }
+
+    .suggestion-card:hover {
+        background: rgba(0, 166, 81, 0.15);
+        border-color: #FFD700;
+        transform: translateY(-2px);
+    }
+
+    .suggestion-icon {
+        color: #00A651;
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .suggestion-title {
+        color: #FFFFFF;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+
+    .suggestion-desc {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.8rem;
+    }
+
+    /* Messages - Enhanced Flag Colors */
+    .message {
+        margin-bottom: 20px;
+        display: inline-block;
+        max-width: 80%;
+        width: auto;
+        animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .user-message {
+        background: linear-gradient(135deg, #00A651, #00C760);
+        color: #FFFFFF;
+        margin-left: auto;
+        padding: 15px 20px;
+        border-radius: 20px 20px 5px 20px;
+        border: 2px solid #FFD700;
+        box-shadow: 0 4px 15px rgba(0, 166, 81, 0.3);
+        float: right;
+        clear: both;
+        max-width: fit-content;
+        word-wrap: break-word;
+    }
+
+    .assistant-message {
+        background: linear-gradient(135deg, #333333, #000000);
+        color: #FFFFFF;
+        border: 2px solid rgba(0, 166, 81, 0.4);
+        padding: 15px 20px;
+        border-radius: 20px 20px 20px 5px;
+        border-left: 4px solid #FFD700;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        position: relative;
+        float: left;
+        clear: both;
+        max-width: fit-content;
+        word-wrap: break-word;
+    }
+
+    .message-timestamp {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        margin-bottom: 8px;
+        clear: both;
+    }
+
+    .user-message .message-timestamp {
+        text-align: right;
+    }
+
+    .message-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .assistant-message:hover .message-actions {
+        opacity: 1;
+    }
+
+    .action-button {
+        background: rgba(0, 166, 81, 0.15);
+        border: 1px solid rgba(0, 166, 81, 0.4);
+        border-radius: 4px;
+        color: #00A651;
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .action-button:hover {
+        background: rgba(0, 166, 81, 0.25);
+        border-color: #FFD700;
+    }
+
+    .action-button.speaking {
+        background: rgba(227, 30, 36, 0.15);
+        border-color: #E31E24;
+        color: #E31E24;
+    }
+
+    /* Enhanced Chart Container - St. Kitts Flag Theme */
+    .chart-container {
+        background: rgba(0, 166, 81, 0.08);
+        border: 2px solid rgba(0, 166, 81, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #FFD700;
+    }
+
+    .chart-title {
+        background: linear-gradient(45deg, #00A651, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        font-size: 1rem;
+        flex: 1;
+    }
+
+    .chart-controls {
+        display: flex;
+        gap: 8px;
+    }
+
+    .chart-action-btn {
+        background: rgba(0, 166, 81, 0.15);
+        border: 1px solid rgba(0, 166, 81, 0.4);
+        border-radius: 4px;
+        color: #00A651;
+        padding: 6px 8px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+    }
+
+    .chart-action-btn:hover {
+        background: rgba(0, 166, 81, 0.25);
+        border-color: #FFD700;
+        transform: scale(1.05);
+    }
+
+    .chart-action-btn i {
+        font-size: 12px;
+    }
+
+    .chart-canvas {
+        height: 300px;
+        position: relative;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(0, 166, 81, 0.2);
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .chart-canvas canvas {
+        border-radius: 6px;
+    }
+
+    /* Chart Error Styles - Red Flag Color */
+    .chart-error {
+        margin: 10px 0;
+    }
+
+    .chart-error > div {
+        background: rgba(227, 30, 36, 0.15);
+        border: 2px solid #E31E24;
+        border-radius: 8px;
+        padding: 15px;
+        color: #E31E24;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .chart-error strong {
+        font-weight: 700;
+        color: #FF2E34;
+    }
+
+    /* Success Message - Green Flag Color */
+    .chart-success {
+        background: rgba(0, 166, 81, 0.15);
+        border: 2px solid #00A651;
+        color: #00A651;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin-top: 8px;
+        text-align: center;
+        animation: fadeInOut 3s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: translateY(10px); }
+        20% { opacity: 1; transform: translateY(0); }
+        80% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-10px); }
+    }
+
+    /* Fullscreen Chart */
+    .chart-container:fullscreen {
+        background: #000000;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-container:fullscreen .chart-canvas {
+        flex: 1;
+        height: auto;
+    }
+
+    .chart-container:fullscreen .chart-header {
+        border-bottom-color: #FFD700;
+    }
+
+    /* Loading State */
+    .chart-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        color: #00A651;
+        font-size: 0.9rem;
+    }
+
+    .chart-loading i {
+        margin-right: 10px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .typing-indicator {
+        background: linear-gradient(135deg, #333333, #000000);
+        color: rgba(255, 255, 255, 0.8);
+        font-style: italic;
+        padding: 15px 20px;
+        border-radius: 20px 20px 20px 5px;
+        animation: pulse 1.5s infinite;
+        max-width: 250px;
+        border: 2px solid rgba(0, 166, 81, 0.4);
+        border-left: 4px solid #FFD700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .typing-dots {
+        display: flex;
+        gap: 4px;
+    }
+
+    .typing-dot {
+        width: 6px;
+        height: 6px;
+        background: #00A651;
+        border-radius: 50%;
+        animation: typing-bounce 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing-bounce {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-8px); }
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+
+    /* Input Area - Flag Color Theme */
+    .chat-input-area {
+        background: linear-gradient(135deg, #333333, #000000);
+        padding: 20px;
+        border-top: 2px solid #FFD700;
+    }
+
+    .input-group {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+    }
+
+    .message-input {
+        flex: 1;
+        background: #000000;
+        border: 2px solid rgba(0, 166, 81, 0.4);
+        color: #FFFFFF;
+        padding: 15px 20px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        resize: none;
+        min-height: 50px;
+        max-height: 150px;
+        font-family: inherit;
+    }
+
+    .message-input:focus {
+        outline: none;
+        border-color: #FFD700;
+        box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+    }
+
+    .message-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .input-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .input-button {
+        background: rgba(0, 166, 81, 0.15);
+        border: 1px solid rgba(0, 166, 81, 0.4);
+        border-radius: 8px;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #00A651;
+    }
+
+    .input-button:hover {
+        background: rgba(0, 166, 81, 0.25);
+        border-color: #FFD700;
+        transform: scale(1.05);
+    }
+
+    .send-button {
+        background: linear-gradient(135deg, #00A651, #00C760);
+        color: #FFFFFF;
+        border: 2px solid #FFD700;
+        box-shadow: 0 4px 15px rgba(0, 166, 81, 0.3);
+    }
+
+    .send-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 166, 81, 0.4);
+    }
+
+    .send-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        background: rgba(85, 85, 85, 0.3);
+        color: rgba(255, 255, 255, 0.3);
+        border-color: rgba(85, 85, 85, 0.3);
+    }
+
+    .input-hints {
+        margin-top: 10px;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .chat-layout {
+            flex-direction: column;
+            height: auto;
+        }
+
+        .chat-sidebar {
+            width: 100%;
+            max-height: 300px;
+            order: 2;
+        }
+
+        .chat-main {
+            order: 1;
+            min-height: 500px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .chat-layout {
+            gap: 15px;
+        }
+
+        .chat-sidebar,
+        .chat-main {
+            margin: 0;
+        }
+
+        .message {
+            max-width: 95%;
+        }
+
+        .input-group {
+            flex-direction: column;
+        }
+
+        .message-input {
+            margin-bottom: 10px;
+        }
+
+        .input-actions {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .quick-suggestions {
+            grid-template-columns: 1fr;
+        }
+
+        .control-row {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chart-header {
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        
+        .chart-controls {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .chart-canvas {
+            height: 250px;
+        }
+    }
+
+    /* Debug Mode Styles */
+    .debug-chart-info {
+        background: rgba(227, 30, 36, 0.15);
+        border: 1px solid #E31E24;
+        color: #E31E24;
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        margin-top: 5px;
+        font-family: monospace;
+    }
+</style>
+
+<div class="chat-layout">
+    <!-- Chat History Sidebar -->
+    <div class="chat-sidebar">
+        <div class="sidebar-header">
+            <span>SECURO Sessions</span>
+            <span id="chatCount">0</span>
+        </div>
+        
+        <div class="sidebar-controls">
+            <div class="control-row">
+                <button class="control-button voice-off" id="toggleVoiceBtn">
+                    <i class="fas fa-volume-mute"></i>
+                    <span>Voice Off</span>
+                </button>
+                <button class="control-button active" id="toggleChartsBtn">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Charts</span>
+                </button>
+            </div>
+            <div class="control-row">
+                <button class="control-button" id="exportChatBtn">
+                    <i class="fas fa-download"></i>
+                    <span>Export</span>
+                </button>
+                <button class="control-button" id="clearAllBtn">
+                    <i class="fas fa-trash"></i>
+                    <span>Clear All</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="chat-history-list" id="chatHistoryList">
+            <div class="new-chat-item">
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i>
+                    New Chat with SECURO
+                </button>
+            </div>
+            <!-- Chat history items will be populated here -->
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="chat-main">
+        <div class="chat-header">
+            <div class="chat-title-area">
+                <div class="ai-avatar">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="chat-info">
+                    <h2>SECURO AI Assistant</h2>
+                    <div class="chat-status">
+                        <div class="status-dot"></div>
+                        <span>Online - Multi-language Support</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-actions">
+                <a href="/analytics" class="header-button">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="/hotspots" class="header-button">
+                    <i class="fas fa-map-marked-alt"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="messages-container" id="messagesContainer">
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="welcome-title">Welcome to SECURO AI</h3>
+                <p class="welcome-subtitle">
+                    Your intelligent assistant for crime analysis and law enforcement operations. 
+                    I can communicate in multiple languages and generate interactive charts and visualizations.
+                </p>
+                <div class="quick-suggestions">
+                    <div class="suggestion-card" data-message="Show me crime trends from 2020 to 2024">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="suggestion-title">Crime Trends</div>
+                        <div class="suggestion-desc">Visualize crime statistics over time</div>
+                    </div>
+                    <div class="suggestion-card" data-message="What are the current crime hotspots and their risk levels?">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <div class="suggestion-title">Crime Hotspots</div>
+                        <div class="suggestion-desc">View high-risk areas and patrol zones</div>
+                    </div>
+                    <div class="suggestion-card" data-message="Generate a pie chart of crime types for 2024">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="suggestion-title">Crime Breakdown</div>
+                        <div class="suggestion-desc">See crime categories distribution</div>
+                    </div>
+                    <div class="suggestion-card" data-message="Emergency contact numbers for St. Kitts and Nevis">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="suggestion-title">Emergency Contacts</div>
+                        <div class="suggestion-desc">Get important phone numbers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <div class="input-group">
+                <textarea 
+                    id="messageInput" 
+                    class="message-input"
+                    placeholder="Ask SECURO anything in any language... Type your message here"
+                    rows="1"
+                    maxlength="2000"
+                ></textarea>
+                <div class="input-actions">
+                    <button class="input-button" id="voiceInputBtn" title="Voice input">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="input-button" id="chartQuickBtn" title="Quick chart">
+                        <i class="fas fa-chart-bar"></i>
+                    </button>
+                    <button class="input-button send-button" id="sendButton" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="input-hints">
+                💡 Try: "Show me crime statistics" • "Generate charts" • "Emergency contacts" • Ask in any language
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+    // Enhanced SECURO Chat System with St. Kitts Flag Color Scheme
+    class SecuroChatManager {
+        constructor() {
+            this.currentChatId = null;
+            this.chatHistory = {};
+            this.currentConversation = [];
+            this.isVoiceEnabled = false; // Voice OFF by default
+            this.isChartsEnabled = true;
+            this.isListening = false;
+            
+            this.loadChatHistoryFromStorage();
+            this.initializeEventListeners();
+        }
+
+        loadChatHistoryFromStorage() {
+            try {
+                const stored = localStorage.getItem('securo_chat_history');
+                if (stored) {
+                    this.chatHistory = JSON.parse(stored);
+                }
+            } catch (error) {
+                console.error('Error loading chat history:', error);
+                this.chatHistory = {};
+            }
+        }
+
+        saveChatHistoryToStorage() {
+            try {
+                localStorage.setItem('securo_chat_history', JSON.stringify(this.chatHistory));
+            } catch (error) {
+                console.error('Error saving chat history:', error);
+            }
+        }
+
+        generateChatTitle(firstMessage) {
+            if (!firstMessage) return "New SECURO Chat";
+            
+            let title = firstMessage.substring(0, 40);
+            if (firstMessage.length > 40) title += "...";
+            
+            return title.charAt(0).toUpperCase() + title.slice(1);
+        }
+
+        createNewChat() {
+            const chatId = 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            this.chatHistory[chatId] = {
+                id: chatId,
+                title: "New SECURO Chat",
+                messages: [],
+                createdAt: new Date().toISOString(),
+                lastActivity: new Date().toISOString()
+            };
+            
+            this.currentChatId = chatId;
+            this.currentConversation = [];
+            this.saveChatHistoryToStorage();
+            this.updateChatHistoryDisplay();
+            this.clearMessagesDisplay();
+            this.showWelcomeScreen();
+            
+            return chatId;
+        }
+
+        loadChat(chatId) {
+            if (this.chatHistory[chatId]) {
+                this.currentChatId = chatId;
+                this.currentConversation = [...this.chatHistory[chatId].messages];
+                
+                this.chatHistory[chatId].lastActivity = new Date().toISOString();
+                this.saveChatHistoryToStorage();
+                
+                this.displayChatMessages();
+                this.updateChatHistoryDisplay();
+                
+                return this.chatHistory[chatId];
+            }
+            return null;
+        }
+
+        addMessage(role, content) {
+            if (!this.currentChatId) {
+                this.createNewChat();
+            }
+
+            const chat = this.chatHistory[this.currentChatId];
+            const message = {
+                role: role,
+                content: content,
+                timestamp: new Date().toISOString()
+            };
+
+            chat.messages.push(message);
+            this.currentConversation.push(message);
+            chat.lastActivity = new Date().toISOString();
+
+            // Update title based on first user message
+            if (role === 'user' && chat.messages.filter(m => m.role === 'user').length === 1) {
+                chat.title = this.generateChatTitle(content);
+            }
+
+            this.saveChatHistoryToStorage();
+            this.updateChatHistoryDisplay();
+        }
+
+        deleteChat(chatId) {
+            if (this.chatHistory[chatId]) {
+                delete this.chatHistory[chatId];
+                
+                if (this.currentChatId === chatId) {
+                    this.currentChatId = null;
+                    this.currentConversation = [];
+                    this.clearMessagesDisplay();
+                    this.showWelcomeScreen();
+                }
+                
+                this.saveChatHistoryToStorage();
+                this.updateChatHistoryDisplay();
+            }
+        }
+
+        getAllChats() {
+            return Object.values(this.chatHistory)
+                .sort((a, b) => new Date(b.lastActivity) - new Date(a.lastActivity));
+        }
+
+        displayChatMessages() {
+            this.clearMessagesDisplay();
+            
+            if (this.currentConversation.length === 0) {
+                this.showWelcomeScreen();
+                return;
+            }
+
+            this.hideWelcomeScreen();
+            
+            this.currentConversation.forEach(message => {
+                this.displayMessage(message.role, message.content, message.timestamp);
+            });
+        }
+
+        clearMessagesDisplay() {
+            const container = document.getElementById('messagesContainer');
+            if (container) {
+                container.innerHTML = '';
+            }
+        }
+
+        showWelcomeScreen() {
+            const container = document.getElementById('messagesContainer');
+            if (container) {
+                container.innerHTML = `
+                    <div class="welcome-screen" id="welcomeScreen">
+                        <div class="welcome-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="welcome-title">Welcome to SECURO AI</h3>
+                        <p class="welcome-subtitle">
+                            Your intelligent assistant for crime analysis and law enforcement operations. 
+                            I can communicate in multiple languages and generate interactive charts and visualizations.
+                        </p>
+                        <div class="quick-suggestions">
+                            <div class="suggestion-card" data-message="Show me crime trends from 2020 to 2024">
+                                <div class="suggestion-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="suggestion-title">Crime Trends</div>
+                                <div class="suggestion-desc">Visualize crime statistics over time</div>
+                            </div>
+                            <div class="suggestion-card" data-message="What are the current crime hotspots and their risk levels?">
+                                <div class="suggestion-icon">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                </div>
+                                <div class="suggestion-title">Crime Hotspots</div>
+                                <div class="suggestion-desc">View high-risk areas and patrol zones</div>
+                            </div>
+                            <div class="suggestion-card" data-message="Generate a pie chart of crime types for 2024">
+                                <div class="suggestion-icon">
+                                    <i class="fas fa-chart-pie"></i>
+                                </div>
+                                <div class="suggestion-title">Crime Breakdown</div>
+                                <div class="suggestion-desc">See crime categories distribution</div>
+                            </div>
+                            <div class="suggestion-card" data-message="Emergency contact numbers for St. Kitts and Nevis">
+                                <div class="suggestion-icon">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="suggestion-title">Emergency Contacts</div>
+                                <div class="suggestion-desc">Get important phone numbers</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Re-attach suggestion card listeners
+                this.attachSuggestionListeners();
+            }
+        }
+
+        hideWelcomeScreen() {
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            if (welcomeScreen) {
+                welcomeScreen.remove();
+            }
+        }
+
+        updateChatHistoryDisplay() {
+            const chatHistoryList = document.getElementById('chatHistoryList');
+            if (!chatHistoryList) return;
+
+            const chats = this.getAllChats();
+            
+            // Keep the new chat button and clear the rest
+            const newChatButton = chatHistoryList.querySelector('.new-chat-item');
+            chatHistoryList.innerHTML = '';
+            chatHistoryList.appendChild(newChatButton);
+
+            chats.forEach(chat => {
+                const chatElement = document.createElement('div');
+                chatElement.className = `history-item ${chat.id === this.currentChatId ? 'active' : ''}`;
+                
+                const lastActivity = new Date(chat.lastActivity).toLocaleDateString();
+                const messageCount = chat.messages.length;
+                
+                chatElement.innerHTML = `
+                    <div class="history-header" onclick="chatManager.loadChat('${chat.id}')">
+                        <div class="history-title">${chat.title}</div>
+                        <div class="history-meta">
+                            <span>${lastActivity}</span>
+                            <span>${messageCount} messages</span>
+                        </div>
+                    </div>
+                    <button onclick="chatManager.deleteChat('${chat.id}'); event.stopPropagation();" class="delete-chat" title="Delete chat">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                chatHistoryList.appendChild(chatElement);
+            });
+
+            // Update counter
+            const counter = document.getElementById('chatCount');
+            if (counter) {
+                counter.textContent = chats.length;
+            }
+        }
+
+        // FIXED: Chart extraction and display methods
+        extractAndDisplayChart(content, messageElement) {
+            // More robust regex pattern to handle the chart data
+            const chartMatch = content.match(/\*\*CHART_GENERATION_START\*\*\s*```json\s*([\s\S]*?)\s*```\s*\*\*CHART_GENERATION_END\*\*/);
+            
+            if (chartMatch && this.isChartsEnabled) {
+                try {
+                    // Clean up the JSON string
+                    let chartJsonString = chartMatch[1].trim();
+                    
+                    // Remove any extra whitespace or newlines that might cause parsing issues
+                    chartJsonString = chartJsonString.replace(/\s+/g, ' ');
+                    
+                    // Parse the JSON
+                    const chartConfig = JSON.parse(chartJsonString);
+                    
+                    console.log('Chart config parsed successfully:', chartConfig);
+                    
+                    // Add the chart to the message
+                    this.addChartToMessage(messageElement, chartConfig);
+                    
+                    return true; // Chart was successfully processed
+                } catch (error) {
+                    console.error('Failed to parse chart data:', error);
+                    console.error('Chart JSON string:', chartMatch[1]);
+                    
+                    // Add error message to the UI
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'chart-error';
+                    errorDiv.innerHTML = `
+                        <div>
+                            <strong>Chart Generation Error:</strong> Failed to parse chart data. Please try asking for the chart again.
+                        </div>
+                    `;
+                    messageElement.appendChild(errorDiv);
+                    
+                    return false;
+                }
+            }
+            
+            return false; // No chart found or charts disabled
+        }
+
+        displayMessage(role, content, timestamp = null) {
+            const container = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}-message`;
+            
+            const time = timestamp ? 
+                new Date(timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 
+                new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            // IMPROVED: Clean display content more thoroughly
+            let displayContent = content;
+            
+            // Remove chart markers and their content for display
+            displayContent = displayContent.replace(/\*\*CHART_GENERATION_START\*\*[\s\S]*?\*\*CHART_GENERATION_END\*\*/g, '');
+            
+            // Clean up any remaining empty lines or extra whitespace
+            displayContent = displayContent.replace(/\n\s*\n/g, '\n').trim();
+            
+            if (role === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="message-timestamp">You • ${time}</div>
+                    ${this.formatMessage(displayContent)}
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="message-timestamp">SECURO • ${time}</div>
+                    ${this.formatMessage(displayContent)}
+                    <div class="message-actions">
+                        <button class="action-button speak-button" onclick="chatManager.speakMessage('${displayContent.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-volume-up"></i>
+                            Speak
+                        </button>
+                        <button class="action-button copy-button" onclick="chatManager.copyMessage('${displayContent.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-copy"></i>
+                            Copy
+                        </button>
+                    </div>
+                `;
+            }
+            
+            container.appendChild(messageDiv);
+            this.scrollToBottom();
+
+            // IMPROVED: Handle chart data after message is added to DOM
+            if (role === 'assistant' && content.includes('CHART_GENERATION_START')) {
+                console.log('Chart data detected in response');
+                const chartProcessed = this.extractAndDisplayChart(content, messageDiv);
+                
+                if (chartProcessed) {
+                    console.log('Chart successfully processed and added');
+                } else {
+                    console.log('Chart processing failed or no valid chart data found');
+                }
+            }
+        }
+
+        addChartToMessage(messageElement, chartConfig) {
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'chart-container';
+            
+            const chartId = `chart_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+            
+            chartContainer.innerHTML = `
+                <div class="chart-header">
+                    <div class="chart-title">${chartConfig.options?.plugins?.title?.text || 'Crime Data Visualization'}</div>
+                    <div class="chart-controls">
+                        <button class="chart-action-btn" onclick="chatManager.downloadChart('${chartId}')" title="Download Chart">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="chart-action-btn" onclick="chatManager.fullscreenChart('${chartId}')" title="Fullscreen">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-canvas">
+                    <canvas id="${chartId}" width="400" height="300"></canvas>
+                </div>
+            `;
+
+            messageElement.appendChild(chartContainer);
+
+            // Create chart with enhanced styling for St. Kitts flag colors
+            setTimeout(() => {
+                const ctx = document.getElementById(chartId);
+                if (ctx) {
+                    try {
+                        // Enhanced chart configuration with St. Kitts flag colors
+                        const enhancedConfig = {
+                            ...chartConfig,
+                            options: {
+                                ...chartConfig.options,
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                interaction: {
+                                    intersect: false,
+                                    mode: 'index'
+                                },
+                                plugins: {
+                                    ...chartConfig.options?.plugins,
+                                    legend: {
+                                        ...chartConfig.options?.plugins?.legend,
+                                        labels: {
+                                            color: '#FFFFFF',
+                                            usePointStyle: true,
+                                            padding: 20,
+                                            font: {
+                                                size: 12,
+                                                family: 'Inter, sans-serif'
+                                            },
+                                            ...chartConfig.options?.plugins?.legend?.labels
+                                        }
+                                    },
+                                    title: {
+                                        ...chartConfig.options?.plugins?.title,
+                                        color: '#00A651',
+                                        font: {
+                                            size: 16,
+                                            weight: 'bold',
+                                            family: 'Inter, sans-serif'
+                                        }
+                                    },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                                        titleColor: '#FFD700',
+                                        bodyColor: '#FFFFFF',
+                                        borderColor: '#00A651',
+                                        borderWidth: 2,
+                                        cornerRadius: 6
+                                    }
+                                },
+                                scales: chartConfig.options?.scales ? {
+                                    ...Object.keys(chartConfig.options.scales).reduce((acc, key) => {
+                                        acc[key] = {
+                                            ...chartConfig.options.scales[key],
+                                            ticks: {
+                                                color: '#CCCCCC',
+                                                font: {
+                                                    size: 11,
+                                                    family: 'Inter, sans-serif'
+                                                },
+                                                ...chartConfig.options.scales[key]?.ticks
+                                            },
+                                            grid: {
+                                                color: 'rgba(0, 166, 81, 0.2)',
+                                                lineWidth: 1,
+                                                ...chartConfig.options.scales[key]?.grid
+                                            },
+                                            border: {
+                                                color: '#FFD700',
+                                                width: 2
+                                            }
+                                        };
+                                        return acc;
+                                    }, {})
+                                } : undefined
+                            }
+                        };
+
+                        // Create the chart
+                        const chart = new Chart(ctx, enhancedConfig);
+                        
+                        // Store chart reference for later use
+                        ctx.chartInstance = chart;
+                        
+                        console.log('Chart created successfully:', chartId);
+                        
+                        // Add success indicator
+                        const successMsg = document.createElement('div');
+                        successMsg.className = 'chart-success';
+                        successMsg.textContent = '✓ Chart generated successfully';
+                        chartContainer.appendChild(successMsg);
+                        
+                        // Remove success message after 3 seconds
+                        setTimeout(() => successMsg.remove(), 3000);
+                        
+                    } catch (error) {
+                        console.error('Chart creation error:', error);
+                        
+                        // Show error in the chart container
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'chart-error';
+                        errorDiv.innerHTML = `
+                            <div>
+                                <strong>Chart Rendering Error</strong><br>
+                                <small>${error.message}</small>
+                            </div>
+                        `;
+                        
+                        chartContainer.innerHTML = '';
+                        chartContainer.appendChild(errorDiv);
+                    }
+                } else {
+                    console.error('Chart canvas element not found:', chartId);
+                }
+            }, 100);
+        }
+
+        // Additional chart utility methods
+        downloadChart(chartId) {
+            const canvas = document.getElementById(chartId);
+            if (canvas && canvas.chartInstance) {
+                const url = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `securo-chart-${Date.now()}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                this.showNotification('Chart downloaded successfully');
+            }
+        }
+
+        fullscreenChart(chartId) {
+            const chartContainer = document.querySelector(`#${chartId}`).closest('.chart-container');
+            if (chartContainer) {
+                if (chartContainer.requestFullscreen) {
+                    chartContainer.requestFullscreen();
+                } else if (chartContainer.webkitRequestFullscreen) {
+                    chartContainer.webkitRequestFullscreen();
+                } else if (chartContainer.msRequestFullscreen) {
+                    chartContainer.msRequestFullscreen();
+                }
+            }
+        }
+
+        formatMessage(text) {
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>')
+                .replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>');
+        }
+
+        showTypingIndicator() {
+            const container = document.getElementById('messagesContainer');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typingIndicator';
+            typingDiv.className = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <span>SECURO is analyzing...</span>
+            `;
+            container.appendChild(typingDiv);
+            this.scrollToBottom();
+        }
+
+        hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        async sendMessage(userMessage) {
+            try {
+                this.hideWelcomeScreen();
+                this.addMessage('user', userMessage);
+                this.displayMessage('user', userMessage);
+                
+                this.showTypingIndicator();
+                
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: userMessage,
+                        history: this.currentConversation,
+                        chartsEnabled: this.isChartsEnabled
+                    })
+                });
+
+                const data = await response.json();
+                
+                this.hideTypingIndicator();
+
+                if (data.success) {
+                    this.addMessage('assistant', data.response);
+                    this.displayMessage('assistant', data.response);
+                    
+                    // Voice synthesis if enabled
+                    if (this.isVoiceEnabled) {
+                        const cleanText = data.response.replace(/\*\*CHART_GENERATION_START\*\*[\s\S]*?\*\*CHART_GENERATION_END\*\*/g, '');
+                        this.speakText(cleanText);
+                    }
+                } else {
+                    throw new Error('API request failed');
+                }
+            } catch (error) {
+                this.hideTypingIndicator();
+                console.error('Chat error:', error);
+                const errorMsg = 'Sorry, I encountered an error. Please try again.';
+                this.addMessage('assistant', errorMsg);
+                this.displayMessage('assistant', errorMsg);
+            }
+        }
+
+        // Voice functionality
+        async speakText(text) {
+            if (!this.isVoiceEnabled) return;
+
+            try {
+                const response = await fetch('/api/text-to-speech', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    await this.playBase64Audio(data.audio_data);
+                } else {
+                    console.error('Voice synthesis failed:', data.error);
+                }
+            } catch (error) {
+                console.error('Voice synthesis error:', error);
+            }
+        }
+
+        async playBase64Audio(base64Audio) {
+            try {
+                const binaryString = atob(base64Audio);
+                const arrayBuffer = new ArrayBuffer(binaryString.length);
+                const uint8Array = new Uint8Array(arrayBuffer);
+                
+                for (let i = 0; i < binaryString.length; i++) {
+                    uint8Array[i] = binaryString.charCodeAt(i);
+                }
+
+                const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
+                const audioUrl = URL.createObjectURL(blob);
+                const audio = new Audio(audioUrl);
+                
+                audio.volume = 0.9;
+                
+                return new Promise((resolve, reject) => {
+                    audio.onended = () => {
+                        URL.revokeObjectURL(audioUrl);
+                        resolve();
+                    };
+                    audio.onerror = (e) => {
+                        URL.revokeObjectURL(audioUrl);
+                        reject(new Error('Audio playback failed'));
+                    };
+                    audio.play().catch(reject);
+                });
+            } catch (error) {
+                console.error('Audio playback error:', error);
+                throw error;
+            }
+        }
+
+        speakMessage(text) {
+            if (this.isVoiceEnabled) {
+                this.speakText(text);
+            } else {
+                this.showNotification('Voice is disabled. Enable it in the sidebar.');
+            }
+        }
+
+        copyMessage(text) {
+            const cleanText = text.replace(/<[^>]*>/g, '');
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(cleanText).then(() => {
+                    this.showNotification('Message copied to clipboard');
+                });
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = cleanText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                this.showNotification('Message copied to clipboard');
+            }
+        }
+
+        scrollToBottom() {
+            const container = document.getElementById('messagesContainer');
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #00A651, #00C760);
+                color: #FFFFFF;
+                border: 2px solid #FFD700;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                box-shadow: 0 8px 25px rgba(0, 166, 81, 0.3);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        attachSuggestionListeners() {
+            document.querySelectorAll('.suggestion-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const message = card.dataset.message;
+                    if (message) {
+                        document.getElementById('messageInput').value = message;
+                        this.updateSendButton();
+                        this.sendUserMessage();
+                    }
+                });
+            });
+        }
+
+        updateSendButton() {
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const hasText = messageInput.value.trim().length > 0;
+            sendButton.disabled = !hasText;
+        }
+
+        autoResizeInput() {
+            const messageInput = document.getElementById('messageInput');
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 150) + 'px';
+        }
+
+        async sendUserMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            
+            if (!messageInput || !messageInput.value.trim()) return;
+
+            const userMessage = messageInput.value.trim();
+            
+            // Disable input while sending
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+            
+            // Clear input
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
+            try {
+                await this.sendMessage(userMessage);
+            } finally {
+                // Re-enable input
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        initializeEventListeners() {
+            document.addEventListener('DOMContentLoaded', () => {
+                // Message input
+                const messageInput = document.getElementById('messageInput');
+                if (messageInput) {
+                    messageInput.addEventListener('input', () => {
+                        this.updateSendButton();
+                        this.autoResizeInput();
+                    });
+
+                    messageInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            this.sendUserMessage();
+                        }
+                    });
+                }
+
+                // Send button
+                const sendButton = document.getElementById('sendButton');
+                if (sendButton) {
+                    sendButton.addEventListener('click', () => this.sendUserMessage());
+                }
+
+                // New chat button
+                const newChatBtn = document.getElementById('newChatBtn');
+                if (newChatBtn) {
+                    newChatBtn.addEventListener('click', () => {
+                        this.createNewChat();
+                        this.showNotification('New chat started');
+                    });
+                }
+
+                // Voice toggle
+                const toggleVoiceBtn = document.getElementById('toggleVoiceBtn');
+                if (toggleVoiceBtn) {
+                    toggleVoiceBtn.addEventListener('click', () => {
+                        this.isVoiceEnabled = !this.isVoiceEnabled;
+                        this.updateVoiceButtonState();
+                        this.showNotification(this.isVoiceEnabled ? 'Voice enabled' : 'Voice disabled');
+                    });
+                }
+
+                // Charts toggle
+                const toggleChartsBtn = document.getElementById('toggleChartsBtn');
+                if (toggleChartsBtn) {
+                    toggleChartsBtn.addEventListener('click', () => {
+                        this.isChartsEnabled = !this.isChartsEnabled;
+                        if (this.isChartsEnabled) {
+                            toggleChartsBtn.classList.add('active');
+                        } else {
+                            toggleChartsBtn.classList.remove('active');
+                        }
+                        this.showNotification(this.isChartsEnabled ? 'Charts enabled' : 'Charts disabled');
+                    });
+                }
+
+                // Export chat
+                const exportChatBtn = document.getElementById('exportChatBtn');
+                if (exportChatBtn) {
+                    exportChatBtn.addEventListener('click', () => {
+                        this.exportChats();
+                    });
+                }
+
+                // Clear all
+                const clearAllBtn = document.getElementById('clearAllBtn');
+                if (clearAllBtn) {
+                    clearAllBtn.addEventListener('click', () => {
+                        if (confirm('Clear all chat history? This cannot be undone.')) {
+                            this.chatHistory = {};
+                            this.currentChatId = null;
+                            this.currentConversation = [];
+                            localStorage.removeItem('securo_chat_history');
+                            this.updateChatHistoryDisplay();
+                            this.showWelcomeScreen();
+                            this.showNotification('All chats cleared');
+                        }
+                    });
+                }
+
+                // Voice input
+                const voiceInputBtn = document.getElementById('voiceInputBtn');
+                if (voiceInputBtn) {
+                    voiceInputBtn.addEventListener('click', () => this.toggleVoiceInput());
+                }
+
+                // Chart quick button
+                const chartQuickBtn = document.getElementById('chartQuickBtn');
+                if (chartQuickBtn) {
+                    chartQuickBtn.addEventListener('click', () => this.quickChart());
+                }
+
+                // Initialize display
+                this.updateChatHistoryDisplay();
+                this.updateVoiceButtonState();
+                
+                if (Object.keys(this.chatHistory).length === 0) {
+                    this.showWelcomeScreen();
+                } else {
+                    // Load the most recent chat
+                    const chats = this.getAllChats();
+                    if (chats.length > 0) {
+                        this.loadChat(chats[0].id);
+                    }
+                }
+
+                // Attach suggestion listeners
+                this.attachSuggestionListeners();
+            });
+        }
+
+        updateVoiceButtonState() {
+            const toggleVoiceBtn = document.getElementById('toggleVoiceBtn');
+            if (!toggleVoiceBtn) return;
+            
+            const icon = toggleVoiceBtn.querySelector('i');
+            const text = toggleVoiceBtn.querySelector('span');
+            
+            if (this.isVoiceEnabled) {
+                icon.className = 'fas fa-volume-up';
+                text.textContent = 'Voice On';
+                toggleVoiceBtn.classList.remove('voice-off');
+                toggleVoiceBtn.classList.add('active');
+            } else {
+                icon.className = 'fas fa-volume-mute';
+                text.textContent = 'Voice Off';
+                toggleVoiceBtn.classList.add('voice-off');
+                toggleVoiceBtn.classList.remove('active');
+            }
+        }
+
+        exportChats() {
+            if (Object.keys(this.chatHistory).length === 0) {
+                this.showNotification('No chats to export');
+                return;
+            }
+
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                chats: this.chatHistory,
+                settings: {
+                    voiceEnabled: this.isVoiceEnabled,
+                    chartsEnabled: this.isChartsEnabled
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `securo-chats-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.showNotification('Chats exported successfully');
+        }
+
+        toggleVoiceInput() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                this.showNotification('Voice input not supported in this browser');
+                return;
+            }
+
+            if (this.isListening) {
+                this.isListening = false;
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                this.isListening = true;
+                this.showNotification('Listening... Speak now');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('messageInput').value = transcript;
+                this.updateSendButton();
+                this.autoResizeInput();
+            };
+
+            recognition.onerror = () => {
+                this.showNotification('Voice input error occurred');
+            };
+
+            recognition.onend = () => {
+                this.isListening = false;
+            };
+
+            recognition.start();
+        }
+
+        quickChart() {
+            const chartQueries = [
+                "Show me crime trends from 2020 to 2024",
+                "Generate a pie chart of crime types for 2024", 
+                "Visualize monthly crime patterns for 2024",
+                "Compare crime hotspots across different years"
+            ];
+            
+            const randomQuery = chartQueries[Math.floor(Math.random() * chartQueries.length)];
+            document.getElementById('messageInput').value = randomQuery;
+            this.updateSendButton();
+            this.sendUserMessage();
+        }
+    }
+
+    // Initialize the chat manager
+    const chatManager = new SecuroChatManager();
+
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    console.log('🚀 Enhanced SECURO AI Chatbot Initialized with St. Kitts Flag Colors');
+    console.log('🎙️ Voice: OFF by default (user must enable)');
+    console.log('📊 Charts: Enabled with St. Kitts flag color scheme');
+    console.log('🗂️ Chat History: Persistent with modern design');
+    console.log('🌍 Multi-language Support: Active');
+    console.log('🇰🇳 Colors: Green (#00A651), Red (#E31E24), Yellow (#FFD700), Black, White');
+</script>
+{% endblock %}

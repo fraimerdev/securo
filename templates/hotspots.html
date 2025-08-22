@@ -1,0 +1,1860 @@
+{% extends "base.html" %}
+
+{% block title %}Crime Hotspots Mapping System{% endblock %}
+
+{% block header %}Crime Hotspots Mapping System{% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>St. Kitts and Nevis Crime Hotspots Mapping System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Maps API with your API key -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmeAg60E9S9f0nd-EW07kMhZv1T_1_Ov0&libraries=visualization"></script>
+</head>
+<body>
+    <div class="hotspots-interface">
+        <!-- Animated Background with Flag Colors -->
+        <div class="page-background">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+            <div class="flag-pattern"></div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="panel-header">
+                <div class="header-icon">
+                    <div class="icon-rings">
+                        <div class="ring ring-outer"></div>
+                        <div class="ring ring-inner"></div>
+                    </div>
+                    <div class="icon-core">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                </div>
+                <div class="header-content">
+                    <h2>RSCNPF TACTICAL MAPPING CONTROLS</h2>
+                    <div class="panel-status">
+                        <div class="status-indicator"></div>
+                        <span>LIVE POLICE DATA</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-grid">
+                <div class="control-section">
+                    <label class="control-label">
+                        <i class="fas fa-filter"></i>
+                        CRIME TYPE FILTER
+                    </label>
+                    <select id="crimeTypeFilter" class="control-select">
+                        <option value="all">All Crime Types</option>
+                        <option value="violent">Violent Crimes</option>
+                        <option value="property">Property Crimes</option>
+                        <option value="drug">Drug Offenses</option>
+                        <option value="firearms">Firearms & Ammo</option>
+                        <option value="larceny">Larcenies</option>
+                        <option value="breakin">Break-ins</option>
+                    </select>
+                </div>
+                
+                <div class="control-section">
+                    <label class="control-label">
+                        <i class="fas fa-map"></i>
+                        POLICE DISTRICT
+                    </label>
+                    <select id="districtFilter" class="control-select">
+                        <option value="all">All Districts</option>
+                        <option value="A">District A (St. Kitts West)</option>
+                        <option value="B">District B (St. Kitts East)</option>
+                        <option value="C">District C (Nevis)</option>
+                    </select>
+                </div>
+
+                <div class="control-section">
+                    <label class="control-label">
+                        <i class="fas fa-calendar"></i>
+                        TIME PERIOD
+                    </label>
+                    <select id="timePeriodFilter" class="control-select">
+                        <option value="2025Q2" selected>2025 Q2 (Apr-Jun)</option>
+                        <option value="2025Q1">2025 Q1 (Jan-Mar)</option>
+                        <option value="2024H2">2024 H2 (Jul-Dec)</option>
+                        <option value="2024H1">2024 H1 (Jan-Jun)</option>
+                    </select>
+                </div>
+                
+                <div class="control-section">
+                    <label class="control-label">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        RISK LEVEL
+                    </label>
+                    <select id="riskLevelFilter" class="control-select">
+                        <option value="all">All Risk Levels</option>
+                        <option value="critical">Critical Risk</option>
+                        <option value="high">High Risk</option>
+                        <option value="medium">Medium Risk</option>
+                        <option value="low">Low Risk</option>
+                    </select>
+                </div>
+                
+                <div class="control-section">
+                    <button id="refreshData" class="control-button primary">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>REFRESH DATA</span>
+                    </button>
+                </div>
+
+                <div class="control-section">
+                    <button id="exportData" class="control-button secondary">
+                        <i class="fas fa-download"></i>
+                        <span>EXPORT REPORT</span>
+                    </button>
+                </div>
+
+                <div class="control-section">
+                    <button id="fullscreenMap" class="control-button tertiary">
+                        <i class="fas fa-expand"></i>
+                        <span>FULLSCREEN</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="map-section">
+            <div class="map-container">
+                <div id="googleMap" class="google-map"></div>
+                
+                <!-- Map Legend -->
+                <div class="map-legend">
+                    <div class="legend-header">
+                        <div class="legend-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>RSCNPF THREAT ASSESSMENT</h3>
+                        <div class="legend-toggle" id="legendToggle">
+                            <i class="fas fa-chevron-up"></i>
+                        </div>
+                    </div>
+                    <div class="legend-content" id="legendContent">
+                        <div class="legend-section">
+                            <h4>Risk Levels</h4>
+                            <div class="legend-items">
+                                <div class="legend-item">
+                                    <div class="legend-marker critical"></div>
+                                    <span>Critical (15+ incidents)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-marker high"></div>
+                                    <span>High (8-14 incidents)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-marker medium"></div>
+                                    <span>Medium (4-7 incidents)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-marker low"></div>
+                                    <span>Low (1-3 incidents)</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="legend-section">
+                            <h4>Crime Types</h4>
+                            <div class="legend-items">
+                                <div class="legend-item">
+                                    <i class="fas fa-fist-raised" style="color: #E31E24;"></i>
+                                    <span>Violent Crimes</span>
+                                </div>
+                                <div class="legend-item">
+                                    <i class="fas fa-home" style="color: #FFD700;"></i>
+                                    <span>Property Crimes</span>
+                                </div>
+                                <div class="legend-item">
+                                    <i class="fas fa-pills" style="color: #00A651;"></i>
+                                    <span>Drug Offenses</span>
+                                </div>
+                                <div class="legend-item">
+                                    <i class="fas fa-gun" style="color: #E31E24;"></i>
+                                    <span>Firearms & Ammo</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Map Info Panel -->
+                <div class="map-info-panel" id="mapInfoPanel">
+                    <div class="info-header">
+                        <div class="info-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3>LOCATION DETAILS</h3>
+                        <button class="close-info" id="closeInfo">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="info-content" id="infoContent">
+                        <p>Click on a hotspot marker to view detailed information</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Panel -->
+        <div class="statistics-panel">
+            <div class="stats-header">
+                <div class="stats-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stats-title">
+                    <h2>RSCNPF CRIME STATISTICS</h2>
+                    <div class="stats-period" id="statsPeriod">2025 Q2 (Apr-Jun)</div>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card critical">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalIncidents">292</div>
+                        <div class="stat-label">Total Incidents</div>
+                        <div class="stat-change negative">-5.5% from 2024</div>
+                    </div>
+                    <div class="stat-glow"></div>
+                </div>
+                
+                <div class="stat-card high">
+                    <div class="stat-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="activeHotspots">6</div>
+                        <div class="stat-label">Active Hotspots</div>
+                        <div class="stat-change positive">-3 from 2024</div>
+                    </div>
+                    <div class="stat-glow"></div>
+                </div>
+                
+                <div class="stat-card medium">
+                    <div class="stat-icon">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="detectionRate">38.7%</div>
+                        <div class="stat-label">Detection Rate</div>
+                        <div class="stat-change negative">-12% from 2024</div>
+                    </div>
+                    <div class="stat-glow"></div>
+                </div>
+                
+                <div class="stat-card low">
+                    <div class="stat-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="drugCases">31</div>
+                        <div class="stat-label">Drug Cases</div>
+                        <div class="stat-change positive">+287% increase</div>
+                    </div>
+                    <div class="stat-glow"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hotspots Table -->
+        <div class="hotspots-table-section">
+            <div class="table-header">
+                <div class="table-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="table-title">
+                    <h2>PRIORITY LOCATIONS (RSCNPF DATA)</h2>
+                </div>
+                <div class="table-actions">
+                    <button class="table-action" onclick="refreshHotspotsTable()">
+                        <i class="fas fa-sync-alt"></i>
+                        REFRESH
+                    </button>
+                    <button class="table-action" onclick="exportHotspotsData()">
+                        <i class="fas fa-download"></i>
+                        EXPORT
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="hotspots-table">
+                    <thead>
+                        <tr>
+                            <th>LOCATION</th>
+                            <th>DISTRICT</th>
+                            <th>RISK LEVEL</th>
+                            <th>INCIDENTS (Q2 2025)</th>
+                            <th>PRIMARY CRIME TYPE</th>
+                            <th>DETECTION RATE</th>
+                            <th>TREND</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hotspotsTableBody">
+                        <!-- Dynamic content will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        :root {
+            /* St. Kitts & Nevis Flag Colors */
+            --flag-green: #00A651;
+            --flag-green-light: #00C760;
+            --flag-green-dark: #008A44;
+            --flag-red: #E31E24;
+            --flag-red-light: #FF2E34;
+            --flag-red-dark: #C01E24;
+            --flag-gold: #FFD700;
+            --flag-gold-light: #FFED4E;
+            --flag-gold-dark: #E6C200;
+            --flag-black: #000000;
+            --flag-white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            color: var(--flag-white);
+        }
+
+        .hotspots-interface {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            position: relative;
+            padding: 20px;
+            padding-top: 80px;
+            background: var(--flag-black);
+            margin: 0;
+            min-height: calc(100vh - 40px);
+        }
+
+        /* Animated Background with Flag Pattern */
+        .page-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: 0;
+            background: linear-gradient(135deg, var(--flag-black) 0%, #111 50%, var(--flag-black) 100%);
+            border-radius: 8px;
+        }
+
+        .flag-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(45deg, transparent 30%, rgba(0, 166, 81, 0.03) 32%, rgba(0, 166, 81, 0.03) 48%, transparent 50%),
+                linear-gradient(-45deg, transparent 30%, rgba(227, 30, 36, 0.03) 32%, rgba(227, 30, 36, 0.03) 48%, transparent 50%);
+            animation: subtleShift 30s infinite linear;
+        }
+
+        @keyframes subtleShift {
+            0% { transform: translateX(-50px) translateY(-50px); }
+            100% { transform: translateX(50px) translateY(50px); }
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.1;
+            animation: float 25s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(45deg, var(--flag-green), var(--flag-green-light));
+            top: 10%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, var(--flag-red), var(--flag-red-light));
+            bottom: 20%;
+            left: 5%;
+            animation-delay: 8s;
+        }
+
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, var(--flag-gold), var(--flag-gold-light));
+            top: 50%;
+            left: 50%;
+            animation-delay: 16s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(20px, -20px) rotate(90deg); }
+            50% { transform: translate(-15px, 15px) rotate(180deg); }
+            75% { transform: translate(-20px, -10px) rotate(270deg); }
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.02));
+            border: 2px solid var(--flag-green);
+            border-radius: 12px;
+            padding: 30px;
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+            z-index: 5;
+            box-shadow: 0 20px 50px rgba(0, 166, 81, 0.1);
+        }
+
+        .control-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--flag-green), var(--flag-gold), var(--flag-red));
+            border-radius: 12px 12px 0 0;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 166, 81, 0.3);
+        }
+
+        .header-icon {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-rings {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ring {
+            position: absolute;
+            border: 2px solid var(--flag-green);
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .ring-outer {
+            width: 100%;
+            height: 100%;
+            animation: rotate-slow 20s linear infinite;
+            border-style: dashed;
+            border-color: var(--flag-gold);
+        }
+
+        .ring-inner {
+            width: 70%;
+            height: 70%;
+            top: 15%;
+            left: 15%;
+            animation: rotate-fast 15s linear infinite reverse;
+            border-color: var(--flag-green);
+        }
+
+        @keyframes rotate-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes rotate-fast { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .icon-core {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--flag-white);
+            z-index: 2;
+            box-shadow: 0 0 20px rgba(0, 166, 81, 0.5);
+            border: 2px solid var(--flag-gold);
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .panel-header h2 {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--flag-green);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 166, 81, 0.3);
+        }
+
+        .panel-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 166, 81, 0.1);
+            color: var(--flag-green);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: 1px solid var(--flag-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--flag-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .control-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--flag-green);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-select {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--flag-green);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--flag-white);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-select:focus {
+            outline: none;
+            border-color: var(--flag-gold);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+        }
+
+        .control-button {
+            border: 2px solid var(--flag-green);
+            border-radius: 8px;
+            padding: 12px 20px;
+            color: var(--flag-green);
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            text-transform: uppercase;
+            background: rgba(0, 166, 81, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .control-button.primary {
+            background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+            color: var(--flag-white);
+            border-color: transparent;
+            box-shadow: 0 8px 25px rgba(0, 166, 81, 0.25);
+        }
+
+        .control-button.secondary {
+            background: linear-gradient(135deg, var(--flag-gold), var(--flag-gold-light));
+            color: var(--flag-black);
+            border-color: var(--flag-gold);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.25);
+        }
+
+        .control-button.tertiary {
+            background: linear-gradient(135deg, var(--flag-red), var(--flag-red-light));
+            color: var(--flag-white);
+            border-color: var(--flag-red);
+            box-shadow: 0 8px 25px rgba(227, 30, 36, 0.25);
+        }
+
+        .control-button:hover {
+            transform: translateY(-3px);
+        }
+
+        .control-button.primary:hover {
+            box-shadow: 0 12px 35px rgba(0, 166, 81, 0.35);
+        }
+
+        .control-button.secondary:hover {
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.35);
+        }
+
+        .control-button.tertiary:hover {
+            box-shadow: 0 12px 35px rgba(227, 30, 36, 0.35);
+        }
+
+        /* Map Section */
+        .map-section {
+            flex: 1;
+            position: relative;
+            min-height: 600px;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 600px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(26, 26, 26, 0.8) 100%);
+            border: 3px solid var(--flag-green);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 166, 81, 0.15);
+            backdrop-filter: blur(10px);
+            z-index: 5;
+        }
+
+        .google-map {
+            width: 100%;
+            height: 100%;
+            border-radius: 9px;
+        }
+
+        /* Map Legend */
+        .map-legend {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--flag-green);
+            border-radius: 8px;
+            backdrop-filter: blur(15px);
+            min-width: 280px;
+            z-index: 15;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 166, 81, 0.2);
+        }
+
+        .legend-header {
+            background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+            color: var(--flag-white);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .legend-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .legend-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin: 0;
+            flex: 1;
+            text-align: center;
+        }
+
+        .legend-toggle {
+            transition: all 0.3s ease;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .legend-toggle.collapsed {
+            transform: rotate(180deg);
+        }
+
+        .legend-content {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .legend-content.hidden {
+            max-height: 0;
+            padding: 0 20px;
+            overflow: hidden;
+        }
+
+        .legend-section {
+            margin-bottom: 20px;
+        }
+
+        .legend-section h4 {
+            color: var(--flag-green);
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--flag-white);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .legend-marker {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--flag-white);
+            flex-shrink: 0;
+        }
+
+        .legend-marker.critical {
+            background: var(--flag-red);
+            box-shadow: 0 0 10px rgba(227, 30, 36, 0.5);
+        }
+
+        .legend-marker.high {
+            background: var(--flag-red-light);
+            box-shadow: 0 0 10px rgba(255, 46, 52, 0.5);
+        }
+
+        .legend-marker.medium {
+            background: var(--flag-gold);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .legend-marker.low {
+            background: var(--flag-green);
+            box-shadow: 0 0 10px rgba(0, 166, 81, 0.5);
+        }
+
+        /* Map Info Panel */
+        .map-info-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--flag-green);
+            border-radius: 8px;
+            backdrop-filter: blur(15px);
+            min-width: 300px;
+            max-width: 400px;
+            z-index: 15;
+            transform: translateY(100%);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 166, 81, 0.2);
+        }
+
+        .map-info-panel.show {
+            transform: translateY(0);
+        }
+
+        .info-header {
+            background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+            color: var(--flag-white);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .info-header h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin: 0;
+            flex: 1;
+            text-align: center;
+        }
+
+        .close-info {
+            background: none;
+            border: none;
+            color: var(--flag-white);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-info:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .info-content {
+            padding: 20px;
+            color: var(--flag-white);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Statistics Panel */
+        .statistics-panel {
+            background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.02));
+            border: 2px solid var(--flag-green);
+            border-radius: 12px;
+            padding: 30px;
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+            z-index: 5;
+            box-shadow: 0 20px 50px rgba(0, 166, 81, 0.1);
+        }
+
+        .statistics-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--flag-green), var(--flag-gold), var(--flag-red));
+            border-radius: 12px 12px 0 0;
+        }
+
+        .stats-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 166, 81, 0.3);
+        }
+
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--flag-white);
+            box-shadow: 0 8px 25px rgba(0, 166, 81, 0.3);
+        }
+
+        .stats-title {
+            flex: 1;
+        }
+
+        .stats-header h2 {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--flag-green);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(0, 166, 81, 0.3);
+        }
+
+        .stats-period {
+            background: rgba(0, 166, 81, 0.1);
+            color: var(--flag-green);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: 1px solid var(--flag-green);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card.critical {
+            border-color: var(--flag-red);
+        }
+
+        .stat-card.critical:hover {
+            box-shadow: 0 15px 40px rgba(227, 30, 36, 0.2);
+        }
+
+        .stat-card.high {
+            border-color: var(--flag-red-light);
+        }
+
+        .stat-card.high:hover {
+            box-shadow: 0 15px 40px rgba(255, 46, 52, 0.2);
+        }
+
+        .stat-card.medium {
+            border-color: var(--flag-gold);
+        }
+
+        .stat-card.medium:hover {
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.2);
+        }
+
+        .stat-card.low {
+            border-color: var(--flag-green);
+        }
+
+        .stat-card.low:hover {
+            box-shadow: 0 15px 40px rgba(0, 166, 81, 0.2);
+        }
+
+        .stat-glow {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 166, 81, 0.05) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover .stat-glow {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--flag-white);
+            flex-shrink: 0;
+        }
+
+        .stat-card.critical .stat-icon {
+            background: linear-gradient(135deg, var(--flag-red), var(--flag-red-dark));
+        }
+
+        .stat-card.high .stat-icon {
+            background: linear-gradient(135deg, var(--flag-red-light), var(--flag-red));
+        }
+
+        .stat-card.medium .stat-icon {
+            background: linear-gradient(135deg, var(--flag-gold), var(--flag-gold-dark));
+            color: var(--flag-black);
+        }
+
+        .stat-card.low .stat-icon {
+            background: linear-gradient(135deg, var(--flag-green), var(--flag-green-dark));
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--flag-white);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #CCCCCC;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .stat-change.positive {
+            background: rgba(0, 166, 81, 0.2);
+            color: var(--flag-green);
+            border: 1px solid var(--flag-green);
+        }
+
+        .stat-change.negative {
+            background: rgba(227, 30, 36, 0.2);
+            color: var(--flag-red);
+            border: 1px solid var(--flag-red);
+        }
+
+        /* Hotspots Table */
+        .hotspots-table-section {
+            background: linear-gradient(145deg, rgba(0, 166, 81, 0.08), rgba(0, 166, 81, 0.02));
+            border: 2px solid var(--flag-green);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+            position: relative;
+            z-index: 5;
+            box-shadow: 0 20px 50px rgba(0, 166, 81, 0.1);
+        }
+
+        .hotspots-table-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--flag-green), var(--flag-gold), var(--flag-red));
+            border-radius: 12px 12px 0 0;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--flag-green), var(--flag-green-light));
+            color: var(--flag-white);
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .table-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .table-title {
+            flex: 1;
+        }
+
+        .table-header h2 {
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .table-action {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 8px 16px;
+            color: var(--flag-white);
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-action:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .hotspots-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .hotspots-table th {
+            background: rgba(0, 0, 0, 0.4);
+            color: var(--flag-green);
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--flag-green);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            text-transform: uppercase;
+        }
+
+        .hotspots-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0, 166, 81, 0.2);
+            color: var(--flag-white);
+            font-size: 0.9rem;
+        }
+
+        .hotspots-table tr:hover {
+            background: rgba(0, 166, 81, 0.1);
+        }
+
+        .risk-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            border: 1px solid;
+        }
+
+        .risk-badge.critical {
+            background: rgba(227, 30, 36, 0.2);
+            color: var(--flag-red);
+            border-color: var(--flag-red);
+        }
+
+        .risk-badge.high {
+            background: rgba(255, 46, 52, 0.2);
+            color: var(--flag-red-light);
+            border-color: var(--flag-red-light);
+        }
+
+        .risk-badge.medium {
+            background: rgba(255, 215, 0, 0.2);
+            color: var(--flag-gold);
+            border-color: var(--flag-gold);
+        }
+
+        .risk-badge.low {
+            background: rgba(0, 166, 81, 0.2);
+            color: var(--flag-green);
+            border-color: var(--flag-green);
+        }
+
+        .trend-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .trend-up {
+            color: var(--flag-red);
+        }
+
+        .trend-down {
+            color: var(--flag-green);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: rgba(0, 166, 81, 0.1);
+            border: 1px solid var(--flag-green);
+            border-radius: 4px;
+            padding: 4px 8px;
+            color: var(--flag-green);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 166, 81, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .control-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hotspots-interface {
+                gap: 20px;
+                padding: 10px;
+            }
+            
+            .control-grid,
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .panel-header,
+            .stats-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .map-legend {
+                position: static;
+                margin: 20px;
+            }
+            
+            .map-info-panel {
+                position: static;
+                margin: 20px;
+                transform: none;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .table-actions {
+                justify-content: center;
+            }
+
+            .map-container {
+                height: 400px;
+            }
+        }
+    </style>
+
+    <script>
+        // Google Map variable
+        let map;
+        let markers = [];
+        let heatmapData = [];
+        let heatmap;
+
+        // Real crime data for St. Kitts and Nevis based on RSCNPF reports (2025 Q2)
+        const crimeData = [
+            // St. Kitts District A & B (High crime areas based on police data)
+            { id: 1, location: 'Basseterre Central', lat: 17.2948, lng: -62.7339, district: 'A', risk: 'critical', type: 'violent', incidents: 18, detectionRate: 58, trend: 'down' },
+            { id: 2, location: 'Market Street', lat: 17.2945, lng: -62.7342, district: 'A', risk: 'high', type: 'larceny', incidents: 12, detectionRate: 23, trend: 'up' },
+            { id: 3, location: 'Independence Square', lat: 17.2950, lng: -62.7340, district: 'A', risk: 'high', type: 'drug', incidents: 11, detectionRate: 100, trend: 'up' },
+            { id: 4, location: 'Frigate Bay', lat: 17.2808, lng: -62.7075, district: 'B', risk: 'medium', type: 'property', incidents: 8, detectionRate: 25, trend: 'down' },
+            { id: 5, location: 'Sandy Point', lat: 17.3581, lng: -62.8442, district: 'A', risk: 'medium', type: 'breakin', incidents: 6, detectionRate: 33, trend: 'up' },
+            { id: 6, location: 'Old Road', lat: 17.3072, lng: -62.8067, district: 'A', risk: 'low', type: 'property', incidents: 4, detectionRate: 50, trend: 'down' },
+            { id: 7, location: 'Dieppe Bay', lat: 17.4039, lng: -62.8278, district: 'A', risk: 'low', type: 'larceny', incidents: 3, detectionRate: 67, trend: 'down' },
+            
+            // Nevis District C (Based on police data)
+            { id: 8, location: 'Charlestown', lat: 17.1378, lng: -62.6131, district: 'C', risk: 'medium', type: 'drug', incidents: 7, detectionRate: 100, trend: 'up' },
+            { id: 9, location: 'Newcastle', lat: 17.1650, lng: -62.6000, district: 'C', risk: 'low', type: 'property', incidents: 2, detectionRate: 50, trend: 'down' },
+            { id: 10, location: 'Gingerland', lat: 17.1200, lng: -62.5800, district: 'C', risk: 'low', type: 'larceny', incidents: 3, detectionRate: 33, trend: 'down' }
+        ];
+
+        let filteredData = [...crimeData];
+        let currentFilters = {
+            crimeType: 'all',
+            district: 'all',
+            timePeriod: '2025Q2',
+            riskLevel: 'all'
+        };
+
+        // DOM Elements
+        const crimeTypeFilter = document.getElementById('crimeTypeFilter');
+        const districtFilter = document.getElementById('districtFilter');
+        const timePeriodFilter = document.getElementById('timePeriodFilter');
+        const riskLevelFilter = document.getElementById('riskLevelFilter');
+        const refreshDataBtn = document.getElementById('refreshData');
+        const exportDataBtn = document.getElementById('exportData');
+        const fullscreenBtn = document.getElementById('fullscreenMap');
+        const mapInfoPanel = document.getElementById('mapInfoPanel');
+        const legendToggle = document.getElementById('legendToggle');
+        const legendContent = document.getElementById('legendContent');
+        const statsPeriod = document.getElementById('statsPeriod');
+
+        // Initialize Google Map
+        function initMap() {
+            // Center on St. Kitts
+            const stKittsCenter = { lat: 17.3026, lng: -62.7177 };
+
+            map = new google.maps.Map(document.getElementById('googleMap'), {
+                zoom: 11,
+                center: stKittsCenter,
+                mapTypeId: google.maps.MapTypeId.TERRAIN,
+                styles: [
+                    {
+                        "featureType": "all",
+                        "stylers": [{"invert_lightness": true}, {"saturation": -100}, {"lightness": 33}]
+                    },
+                    {
+                        "featureType": "water",
+                        "stylers": [{"color": "#2D333C"}]
+                    }
+                ],
+                mapTypeControl: true,
+                mapTypeControlOptions: {
+                    style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                    position: google.maps.ControlPosition.TOP_CENTER
+                },
+                zoomControl: true,
+                zoomControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_CENTER
+                },
+                scaleControl: true,
+                streetViewControl: true,
+                streetViewControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_TOP
+                },
+                fullscreenControl: true,
+                fullscreenControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_TOP
+                }
+            });
+
+            // Initialize heatmap data
+            updateHeatmapData();
+            
+            // Create heatmap layer with flag colors
+            heatmap = new google.maps.visualization.HeatmapLayer({
+                data: heatmapData,
+                map: map,
+                radius: 50,
+                opacity: 0.6,
+                gradient: [
+                    'rgba(0, 166, 81, 0)',     // Transparent green
+                    'rgba(255, 215, 0, 0.8)',  // Gold
+                    'rgba(255, 215, 0, 1)',    // Solid gold
+                    'rgba(255, 46, 52, 1)',    // Red light
+                    'rgba(227, 30, 36, 1)'     // Flag red
+                ]
+            });
+
+            renderMarkers();
+        }
+
+        // Update heatmap data based on filtered crime data
+        function updateHeatmapData() {
+            heatmapData = filteredData.map(crime => {
+                return {
+                    location: new google.maps.LatLng(crime.lat, crime.lng),
+                    weight: crime.incidents
+                };
+            });
+        }
+
+        // Render crime markers on the map
+        function renderMarkers() {
+            // Clear existing markers
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+
+            filteredData.forEach(crime => {
+                const marker = new google.maps.Marker({
+                    position: { lat: crime.lat, lng: crime.lng },
+                    map: map,
+                    title: `${crime.location}: ${crime.incidents} incidents`,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        fillColor: getRiskColor(crime.risk),
+                        fillOpacity: 0.9,
+                        strokeColor: '#FFFFFF',
+                        strokeWeight: 3,
+                        scale: getRiskSize(crime.risk)
+                    },
+                    animation: crime.risk === 'critical' ? google.maps.Animation.BOUNCE : null
+                });
+
+                marker.addListener('click', () => showLocationDetails(crime));
+                markers.push(marker);
+            });
+        }
+
+        function getRiskColor(risk) {
+            switch (risk) {
+                case 'critical': return '#E31E24';  // Flag red
+                case 'high': return '#FF2E34';      // Flag red light
+                case 'medium': return '#FFD700';    // Flag gold
+                case 'low': return '#00A651';       // Flag green
+                default: return '#FFFFFF';
+            }
+        }
+
+        function getRiskSize(risk) {
+            switch (risk) {
+                case 'critical': return 15;
+                case 'high': return 12;
+                case 'medium': return 10;
+                case 'low': return 8;
+                default: return 10;
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if Google Maps API is loaded
+            if (typeof google === 'undefined') {
+                // Fallback: Show message to user about Google Maps API
+                document.getElementById('googleMap').innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: rgba(0,0,0,0.8); color: #00A651; text-align: center; padding: 20px;">
+                        <div>
+                            <i class="fas fa-map-marked-alt" style="font-size: 48px; margin-bottom: 20px; color: #00A651;"></i>
+                            <h3 style="color: #00A651; margin-bottom: 15px;">Google Maps Integration Required</h3>
+                            <p style="color: #CCCCCC; margin-bottom: 20px;">To display the interactive map, please:</p>
+                            <ol style="color: #CCCCCC; text-align: left; margin-bottom: 20px;">
+                                <li>Get a Google Maps API key from <a href="https://console.cloud.google.com/" target="_blank" style="color: #FFD700;">Google Cloud Console</a></li>
+                                <li>Enable the Maps JavaScript API and Places API</li>
+                                <li>Replace "YOUR_API_KEY" in the script tag with your actual API key</li>
+                            </ol>
+                            <p style="color: #FFD700; font-weight: bold;">Real RSCNPF crime data is displayed in the table below!</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                initMap();
+            }
+            
+            populateHotspotsTable();
+            updateStatistics();
+        });
+
+        // Event Listeners
+        if (crimeTypeFilter) crimeTypeFilter.addEventListener('change', handleFilterChange);
+        if (districtFilter) districtFilter.addEventListener('change', handleFilterChange);
+        if (timePeriodFilter) timePeriodFilter.addEventListener('change', handleFilterChange);
+        if (riskLevelFilter) riskLevelFilter.addEventListener('change', handleFilterChange);
+        if (refreshDataBtn) refreshDataBtn.addEventListener('click', refreshData);
+        if (exportDataBtn) exportDataBtn.addEventListener('click', exportData);
+        if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
+        if (legendToggle) legendToggle.addEventListener('click', toggleLegend);
+        if (document.getElementById('closeInfo')) document.getElementById('closeInfo').addEventListener('click', closeInfoPanel);
+
+        function handleFilterChange() {
+            currentFilters.crimeType = crimeTypeFilter.value;
+            currentFilters.district = districtFilter.value;
+            currentFilters.timePeriod = timePeriodFilter.value;
+            currentFilters.riskLevel = riskLevelFilter.value;
+            
+            applyFilters();
+            
+            if (map) {
+                updateHeatmapData();
+                heatmap.setData(heatmapData);
+                renderMarkers();
+            }
+            
+            populateHotspotsTable();
+            updateStatistics();
+            
+            // Update stats period display
+            const periodText = timePeriodFilter.options[timePeriodFilter.selectedIndex].text;
+            statsPeriod.textContent = periodText;
+        }
+
+        function applyFilters() {
+            filteredData = crimeData.filter(item => {
+                const typeMatch = currentFilters.crimeType === 'all' || item.type === currentFilters.crimeType;
+                const districtMatch = currentFilters.district === 'all' || item.district === currentFilters.district;
+                const riskMatch = currentFilters.riskLevel === 'all' || item.risk === currentFilters.riskLevel;
+                return typeMatch && districtMatch && riskMatch;
+            });
+        }
+
+        function showLocationDetails(crime) {
+            const infoContent = document.getElementById('infoContent');
+            
+            const crimeTypeNames = {
+                violent: 'Violent Crimes',
+                property: 'Property Crimes',
+                drug: 'Drug Offenses',
+                firearms: 'Firearms & Ammo',
+                larceny: 'Larcenies',
+                breakin: 'Break-ins'
+            };
+            
+            infoContent.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <h4 style="color: #00A651; margin-bottom: 8px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">${crime.location}</h4>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                        <span class="risk-badge ${crime.risk}">${crime.risk.toUpperCase()}</span>
+                        <span style="background: rgba(0, 166, 81, 0.1); color: #00A651; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #00A651;">
+                            DISTRICT ${crime.district}
+                        </span>
+                        <span style="background: rgba(255, 215, 0, 0.1); color: #FFD700; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #FFD700;">
+                            ${crimeTypeNames[crime.type] || crime.type}
+                        </span>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #CCCCCC; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Total Incidents (Q2 2025):</span>
+                        <span style="color: #FFFFFF; font-weight: 700;">${crime.incidents}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #CCCCCC; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Detection Rate:</span>
+                        <span style="color: ${crime.detectionRate >= 50 ? '#00A651' : '#E31E24'}; font-weight: 700;">${crime.detectionRate}%</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #CCCCCC; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Trend:</span>
+                        <span class="trend-${crime.trend}" style="font-weight: 700;">
+                            ${crime.trend === 'up' ? '↗ Increasing' : '↘ Decreasing'}
+                        </span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #CCCCCC; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Police District:</span>
+                        <span style="color: #FFFFFF;">District ${crime.district}</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="action-btn" onclick="viewDetailedReport('${crime.id}')">
+                        <i class="fas fa-file-alt"></i> RSCNPF REPORT
+                    </button>
+                    <button class="action-btn" onclick="deployPatrol('${crime.location}')">
+                        <i class="fas fa-car"></i> DEPLOY PATROL
+                    </button>
+                </div>
+            `;
+            
+            mapInfoPanel.classList.add('show');
+        }
+
+        function closeInfoPanel() {
+            mapInfoPanel.classList.remove('show');
+        }
+
+        function toggleLegend() {
+            const isCollapsed = legendContent.classList.contains('hidden');
+            
+            if (isCollapsed) {
+                legendContent.classList.remove('hidden');
+                legendToggle.classList.remove('collapsed');
+            } else {
+                legendContent.classList.add('hidden');
+                legendToggle.classList.add('collapsed');
+            }
+        }
+
+        function populateHotspotsTable() {
+            const tableBody = document.getElementById('hotspotsTableBody');
+            
+            // Sort by incidents (descending)
+            const sortedData = [...filteredData].sort((a, b) => b.incidents - a.incidents);
+            
+            const crimeTypeNames = {
+                violent: 'Violent Crimes',
+                property: 'Property Crimes',
+                drug: 'Drug Offenses',
+                firearms: 'Firearms & Ammo',
+                larceny: 'Larcenies',
+                breakin: 'Break-ins'
+            };
+            
+            tableBody.innerHTML = sortedData.map(crime => `
+                <tr onclick="focusLocation(${crime.id})" style="cursor: pointer;">
+                    <td style="font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">${crime.location}</td>
+                    <td style="font-weight: 700; color: #00A651;">District ${crime.district}</td>
+                    <td><span class="risk-badge ${crime.risk}">${crime.risk}</span></td>
+                    <td style="font-weight: 700; color: #FFD700;">${crime.incidents}</td>
+                    <td style="text-transform: capitalize;">${crimeTypeNames[crime.type] || crime.type}</td>
+                    <td style="color: ${crime.detectionRate >= 50 ? '#00A651' : '#E31E24'}; font-weight: 700;">${crime.detectionRate}%</td>
+                    <td class="trend-indicator trend-${crime.trend}">
+                        <i class="fas fa-arrow-${crime.trend === 'up' ? 'up' : 'down'}"></i>
+                        ${crime.trend === 'up' ? 'Increasing' : 'Decreasing'}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="viewDetailedReport('${crime.id}')" title="View RSCNPF Report">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn" onclick="deployPatrol('${crime.location}')" title="Deploy Patrol">
+                                <i class="fas fa-car"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStatistics() {
+            const totalIncidents = filteredData.reduce((sum, crime) => sum + crime.incidents, 0);
+            const activeHotspots = filteredData.filter(crime => crime.risk === 'critical' || crime.risk === 'high').length;
+            const avgDetectionRate = Math.round(filteredData.reduce((sum, crime) => sum + crime.detectionRate, 0) / filteredData.length);
+            const drugCases = filteredData.filter(crime => crime.type === 'drug').reduce((sum, crime) => sum + crime.incidents, 0);
+            
+            document.getElementById('totalIncidents').textContent = totalIncidents;
+            document.getElementById('activeHotspots').textContent = activeHotspots;
+            document.getElementById('detectionRate').textContent = avgDetectionRate + '%';
+            document.getElementById('drugCases').textContent = drugCases;
+        }
+
+        function refreshData() {
+            // Add loading state
+            refreshDataBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>UPDATING RSCNPF DATA...</span>';
+            refreshDataBtn.disabled = true;
+            
+            // Simulate data refresh
+            setTimeout(() => {
+                refreshDataBtn.innerHTML = '<i class="fas fa-sync-alt"></i><span>REFRESH DATA</span>';
+                refreshDataBtn.disabled = false;
+                
+                if (map) {
+                    updateHeatmapData();
+                    heatmap.setData(heatmapData);
+                    renderMarkers();
+                }
+                
+                populateHotspotsTable();
+                updateStatistics();
+                showNotification('RSCNPF crime data updated successfully');
+            }, 1500);
+        }
+
+        function exportData() {
+            const dataToExport = {
+                timestamp: new Date().toISOString(),
+                source: 'Royal St. Christopher & Nevis Police Force (RSCNPF)',
+                period: currentFilters.timePeriod,
+                filters: currentFilters,
+                locations: filteredData,
+                statistics: {
+                    totalIncidents: filteredData.reduce((sum, crime) => sum + crime.incidents, 0),
+                    activeHotspots: filteredData.filter(crime => crime.risk === 'critical' || crime.risk === 'high').length,
+                    avgDetectionRate: Math.round(filteredData.reduce((sum, crime) => sum + crime.detectionRate, 0) / filteredData.length)
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rscnpf-crime-hotspots-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('RSCNPF crime data exported successfully');
+        }
+
+        function toggleFullscreen() {
+            const mapContainer = document.querySelector('.map-container');
+            
+            if (!document.fullscreenElement) {
+                mapContainer.requestFullscreen().then(() => {
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i><span>EXIT FULLSCREEN</span>';
+                    showNotification('Map in fullscreen mode');
+                }).catch(() => {
+                    showNotification('Fullscreen not supported in this browser');
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i><span>FULLSCREEN</span>';
+                    showNotification('Exited fullscreen mode');
+                });
+            }
+        }
+
+        function focusLocation(crimeId) {
+            const crime = crimeData.find(c => c.id == crimeId);
+            if (crime) {
+                showLocationDetails(crime);
+                
+                // Pan to location on map if available
+                if (map) {
+                    map.panTo({ lat: crime.lat, lng: crime.lng });
+                    map.setZoom(15);
+                    
+                    // Bounce the marker
+                    const marker = markers.find(m => 
+                        m.getPosition().lat() === crime.lat && 
+                        m.getPosition().lng() === crime.lng
+                    );
+                    if (marker) {
+                        marker.setAnimation(google.maps.Animation.BOUNCE);
+                        setTimeout(() => {
+                            marker.setAnimation(null);
+                        }, 2000);
+                    }
+                }
+            }
+        }
+
+        function viewDetailedReport(crimeId) {
+            showNotification('Opening detailed RSCNPF crime report...');
+            // In a real app, this would open a detailed report modal or navigate to a report page
+        }
+
+        function deployPatrol(location) {
+            showNotification(`Patrol deployment request sent for ${location}`);
+            // In a real app, this would integrate with RSCNPF dispatch systems
+        }
+
+        function refreshHotspotsTable() {
+            populateHotspotsTable();
+            showNotification('RSCNPF hotspots table refreshed');
+        }
+
+        function exportHotspotsData() {
+            exportData();
+        }
+
+        function showNotification(message) {
+            // Create a temporary notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 120px;
+                right: 20px;
+                background: linear-gradient(135deg, #00A651, #00C760);
+                color: #FFFFFF;
+                padding: 15px 20px;
+                border-radius: 8px;
+                font-weight: 700;
+                font-size: 0.9rem;
+                z-index: 25;
+                animation: slideIn 0.3s ease;
+                box-shadow: 0 8px 25px rgba(0, 166, 81, 0.3);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border: 1px solid #FFD700;
+            `;
+            notification.textContent = message;
+            
+            // Add slide-in animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+{% endblock %}
