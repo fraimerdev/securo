@@ -2480,4 +2480,4 @@ if __name__ == '__main__':
     print("   • /api/crime-feed-sources - Source status check")
     print("   • /api/refresh-crime-sources - Manual source refresh")
     
-    app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
+    app.run(debug=True, host='0.0.0.0', port=5005, threaded=True)
