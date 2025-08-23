@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'flask-app',
+    name: 'securo',
     script: 'app.py',
     interpreter: 'python3',
     instances: 1,
