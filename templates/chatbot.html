@@ -942,7 +942,7 @@
                     <i class="fas fa-shield-alt"></i>
                 </div>
                 <div class="chat-info">
-                    <h2>SECURO AI Assistant</h2>
+                    <h2>SECURO AI </h2>
                     <div class="chat-status">
                         <div class="status-dot"></div>
                         <span>Online - Multi-language Support</span>
@@ -1025,7 +1025,7 @@
                 </div>
             </div>
             <div class="input-hints">
-                💡 Try: "Show me crime statistics" • "Generate charts" • "Emergency contacts" • Ask in any language
+               💡 Try: "Show me crime statistics" • "Generate charts" • "Emergency contacts" • Ask in any language
             </div>
         </div>
     </div>
@@ -1280,7 +1280,7 @@
             }
         }
 
-        // FIXED: Chart extraction and display methods
+        // Chart extraction and display methods
         extractAndDisplayChart(content, messageElement) {
             // More robust regex pattern to handle the chart data
             const chartMatch = content.match(/\*\*CHART_GENERATION_START\*\*\s*```json\s*([\s\S]*?)\s*```\s*\*\*CHART_GENERATION_END\*\*/);
@@ -1557,7 +1557,7 @@
                 .replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>');
         }
 
-        showTypingIndicator() {
+         showTypingIndicator() {
             const container = document.getElementById('messagesContainer');
             const typingDiv = document.createElement('div');
             typingDiv.id = 'typingIndicator';
@@ -1587,6 +1587,7 @@
                 this.addMessage('user', userMessage);
                 this.displayMessage('user', userMessage);
                 
+                // Show typing indicator AFTER user message is displayed
                 this.showTypingIndicator();
                 
                 const response = await fetch('/api/chat', {
@@ -1609,7 +1610,6 @@
                     this.addMessage('assistant', data.response);
                     this.displayMessage('assistant', data.response);
                     
-                    // Voice synthesis if enabled
                     if (this.isVoiceEnabled) {
                         const cleanText = data.response.replace(/\*\*CHART_GENERATION_START\*\*[\s\S]*?\*\*CHART_GENERATION_END\*\*/g, '');
                         this.speakText(cleanText);
@@ -2032,7 +2032,7 @@
     console.log('🎙️ Voice: OFF by default (user must enable)');
     console.log('📊 Charts: Enabled with St. Kitts flag color scheme');
     console.log('🗂️ Chat History: Persistent with modern design');
-    console.log('🌍 Multi-language Support: Active');
+    console.log('🌍 Auto Language Detection: Active');
     console.log('🇰🇳 Colors: Green (#00A651), Red (#E31E24), Yellow (#FFD700), Black, White');
 </script>
 {% endblock %}

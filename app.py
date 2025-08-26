@@ -1,6 +1,6 @@
 """
 SECURO - St. Kitts & Nevis Crime Prevention Platform
-Real News Feed Integration System
+Real News Feed Integration System with Language Auto-Detection
 
 REQUIRED DEPENDENCIES:
 pip install flask flask-mail flask-cors google-generativeai beautifulsoup4 requests
@@ -17,6 +17,7 @@ FEATURES:
 - Real-time data aggregation with fallback systems
 - Source status monitoring and manual refresh capabilities
 - Data transparency with source indicators
+- Language Auto-Detection for multilingual support
 """
 
 from flask import Flask, render_template, request, jsonify, session, Response
@@ -67,7 +68,7 @@ app.config['MAIL_DEFAULT_SENDER'] = 'SKNPOLICEFORCE869@GMAIL.COM'
 mail = Mail(app)
 
 # PUT YOUR GOOGLE GEMINI API KEY HERE
-GEMINI_API_KEY = "AIzaSyCmZf-CgGSt0Wy13cOgK-5OL4p2p1-qPfU"
+GEMINI_API_KEY = "AIzaSyCkzxCzuoE8vnLgnLP85h7Peu1bVoMJI4c"
 
 # ElevenLabs Configuration
 ELEVENLABS_API_KEY = "sk_b5025f541c1d26b003378ae0d67c6f9d2b65188ae0b510fd"
@@ -848,12 +849,12 @@ COMPREHENSIVE_EMERGENCY_CONTACTS = [
     {"name": "Crisis Mental Health Line", "number": "(869) 465-2945", "type": "support", "available": "24/7"}
 ]
 
-# ENHANCED SECURO AI SYSTEM PROMPT FOR GEMINI WITH CHART GENERATION
-SECURO_SYSTEM_PROMPT = """You are SECURO, an advanced AI assistant for the Royal St. Christopher & Nevis Police Force. You are a professional, authoritative, and helpful law enforcement AI system with advanced data visualization capabilities.
+# ENHANCED SECURO AI SYSTEM PROMPT FOR GEMINI WITH CHART GENERATION AND LANGUAGE AUTO-DETECTION
+SECURO_SYSTEM_PROMPT = """You are SECURO, an advanced AI assistant for the Royal St. Christopher & Nevis Police Force. You are a professional, authoritative, and helpful law enforcement AI system with advanced data visualization capabilities and automatic language detection.
 
 CORE IDENTITY:
 - Name: SECURO (Secure Emergency Crime Understanding & Response Operations)
-- Role: Advanced Crime Prevention & Law Enforcement AI Assistant with Chart Generation
+- Role: Advanced Crime Prevention & Law Enforcement AI Assistant with Chart Generation & Multi-Language Support
 - Jurisdiction: St. Kitts and Nevis
 - Authority: Official RSCNPF AI Assistant
 
@@ -865,6 +866,7 @@ CAPABILITIES:
 5. Tactical intelligence and hotspot analysis
 6. Community safety guidance
 7. **CHART GENERATION**: Create interactive charts and visualizations using Chart.js
+8. **AUTOMATIC LANGUAGE DETECTION**: Respond in the user's detected language while maintaining professional law enforcement identity
 
 CHART GENERATION INSTRUCTIONS:
 When users request charts, graphs, or visualizations, you MUST:
@@ -912,6 +914,13 @@ When users request charts, graphs, or visualizations, you MUST:
    - Success: #00FF00 (Green)
    - Background: Dark colors with transparency
 
+LANGUAGE ADAPTATION:
+- Automatically detect the language of user input
+- Respond primarily in the detected language
+- Keep emergency numbers, technical terms, and official designations in English for clarity and safety
+- Maintain your professional SECURO identity regardless of language
+- For St. Kitts and Nevis' diverse population, support common languages including Spanish, French, Portuguese, and others
+
 HISTORICAL DATA CONTEXT (2016-2024):
 You have access to comprehensive crime statistics from 2016-2024, including:
 - Total crimes, homicides, violent crimes, property crimes
@@ -928,6 +937,7 @@ RESPONSE STYLE:
 - Provide specific contact numbers for emergencies
 - Reference legal authorities when discussing procedures
 - Always prioritize public safety
+- Adapt language naturally based on user input while maintaining authority
 
 RESTRICTIONS:
 - Only provide information about St. Kitts & Nevis law enforcement
@@ -936,6 +946,7 @@ RESTRICTIONS:
 - Maintain professional boundaries
 - Use actual historical data when generating charts
 - DO NOT repeat greetings or introductions in subsequent responses
+- Emergency contacts and technical procedures must remain in English regardless of response language
 
 Maintain your professional law enforcement persona throughout all responses without unnecessary pleasantries, unless requested for a different persona by the user."""
 
@@ -982,7 +993,7 @@ def welcome():
 
 @app.route('/chatbot')
 def chatbot():
-    """AI chatbot interface with chart generation"""
+    """AI chatbot interface with chart generation and language auto-detection"""
     return render_template('chatbot.html')
 
 @app.route('/live-crime-feed')
@@ -1709,18 +1720,19 @@ def clean_text_for_speech(text):
 
 @app.route('/api/chat', methods=['POST'])
 def chat_api():
-    """Enhanced API endpoint for SECURO AI interactions with chart generation"""
+    """Enhanced API endpoint for SECURO AI interactions with chart generation and language detection"""
     try:
         data = request.json
         user_message = data.get('message', '')
         conversation_history = data.get('history', [])
         conversation_id = data.get('conversationId', None)
+        detected_language = data.get('detectedLanguage', 'en')
         
         # Log conversation activity
-        app.logger.info(f"Chat message in conversation {conversation_id}: {len(conversation_history)} total messages")
+        app.logger.info(f"Chat message in conversation {conversation_id}: {len(conversation_history)} total messages, detected language: {detected_language}")
         
-        # Generate Gemini response with chart generation capability
-        response = generate_gemini_securo_response(user_message, conversation_history)
+        # Generate Gemini response with chart generation capability and language detection
+        response = generate_gemini_securo_response(user_message, conversation_history, detected_language)
         
         # Extract chart data if present
         chart_data = extract_chart_data(response)
@@ -1733,12 +1745,14 @@ def chat_api():
             'response_type': 'ai_analysis_with_charts',
             'model': 'gemini-2.5-flash',
             'conversation_id': conversation_id,
-            'conversation_length': len(conversation_history) + 1
+            'conversation_length': len(conversation_history) + 1,
+            'detected_language': detected_language
         })
     except Exception as e:
         app.logger.error(f"Chat API error: {str(e)}")
         # Fallback response with chart capability
-        fallback_response = generate_enhanced_securo_response(user_message, conversation_history)
+        detected_language = data.get('detectedLanguage', 'en') if 'data' in locals() else 'en'
+        fallback_response = generate_enhanced_securo_response(user_message, conversation_history, detected_language)
         chart_data = extract_chart_data(fallback_response)
         
         return jsonify({
@@ -1748,6 +1762,7 @@ def chat_api():
             'timestamp': datetime.now().isoformat(),
             'response_type': 'fallback_analysis_with_charts',
             'conversation_id': conversation_id,
+            'detected_language': detected_language,
             'note': 'Using local processing with chart generation'
         })
 
@@ -2020,8 +2035,8 @@ def generate_hotspots_comparison_chart(years):
         }
     }
 
-def generate_gemini_securo_response(user_message, conversation_history=None):
-    """Generate SECURO response using Google Gemini with chart generation"""
+def generate_gemini_securo_response(user_message, conversation_history=None, detected_language='en'):
+    """Generate SECURO response using Google Gemini with chart generation and language detection"""
     try:
         # Check API key
         if not GEMINI_API_KEY or GEMINI_API_KEY == "your_gemini_api_key_here":
@@ -2033,6 +2048,30 @@ def generate_gemini_securo_response(user_message, conversation_history=None):
             for msg in conversation_history[-5:]:
                 role = "User" if msg.get('role') == 'user' else "SECURO"
                 conversation_context += f"{role}: {msg.get('content', '')}\n"
+        
+        # Language instruction based on detection
+        language_instruction = ""
+        if detected_language != 'en':
+            language_names = {
+                'es': 'Spanish (Español)',
+                'fr': 'French (Français)', 
+                'pt': 'Portuguese (Português)',
+                'de': 'German (Deutsch)',
+                'it': 'Italian (Italiano)',
+                'ru': 'Russian (Русский)',
+                'zh': 'Chinese (中文)',
+                'ar': 'Arabic (العربية)',
+                'hi': 'Hindi (हिंदी)',
+                'ja': 'Japanese (日本語)',
+                'ko': 'Korean (한국어)',
+                'nl': 'Dutch (Nederlands)'
+            }
+            
+            detected_lang_name = language_names.get(detected_language, detected_language)
+            language_instruction = f"""
+IMPORTANT LANGUAGE INSTRUCTION: The user's message appears to be in {detected_lang_name}. You MUST respond primarily in {detected_lang_name} while maintaining your SECURO identity. Keep technical terms and emergency numbers in English for clarity, but provide explanations and main content in {detected_lang_name}. This is to serve the diverse population of St. Kitts and Nevis effectively.
+
+"""
         
         # Add comprehensive crime data context
         crime_context = f"""
@@ -2068,7 +2107,7 @@ Current timestamp: {datetime.now().isoformat()}
         full_prompt = f"""
 {SECURO_SYSTEM_PROMPT}
 
-{crime_context}
+{language_instruction}{crime_context}
 
 CONVERSATION HISTORY:
 {conversation_context}
@@ -2104,11 +2143,42 @@ IMPORTANT: If the user requests charts, graphs, visualizations, or asks question
         elif "QUOTA_EXCEEDED" in error_msg:
             return "QUOTA EXCEEDED: You've reached your Gemini usage limit. Try again later or upgrade your quota."
         else:
-            return generate_enhanced_securo_response(user_message, conversation_history)
+            return generate_enhanced_securo_response(user_message, conversation_history, detected_language)
 
-def generate_enhanced_securo_response(message, history=None):
-    """Enhanced fallback response generation with chart capability - FIXED VERSION"""
+def generate_enhanced_securo_response(message, history=None, detected_language='en'):
+    """Enhanced fallback response generation with chart capability and language detection - FIXED VERSION"""
     message_lower = message.lower()
+    
+    # Language-specific responses
+    language_responses = {
+        'es': {
+            'chart_intro': '**SECURO AI - ANÁLISIS DE TENDENCIAS DE HOMICIDIOS**',
+            'emergency': 'Emergencia',
+            'contact': 'Contacto de',
+            'analysis': 'Análisis',
+            'key_findings': 'Hallazgos Clave',
+            'overall_trend': 'Tendencia General'
+        },
+        'fr': {
+            'chart_intro': '**SECURO AI - ANALYSE DES TENDANCES D\'HOMICIDES**',
+            'emergency': 'Urgence',
+            'contact': 'Contact d\'',
+            'analysis': 'Analyse',
+            'key_findings': 'Principales Conclusions',
+            'overall_trend': 'Tendance Générale'
+        },
+        'pt': {
+            'chart_intro': '**SECURO AI - ANÁLISE DE TENDÊNCIAS DE HOMICÍDIOS**',
+            'emergency': 'Emergência',
+            'contact': 'Contato de',
+            'analysis': 'Análise',
+            'key_findings': 'Principais Descobertas',
+            'overall_trend': 'Tendência Geral'
+        }
+    }
+    
+    # Get language-specific terms or default to English
+    lang_terms = language_responses.get(detected_language, {})
     
     # Chart generation requests
     if any(term in message_lower for term in ['chart', 'graph', 'visualize', 'plot', 'show me']):
@@ -2176,7 +2246,9 @@ def generate_enhanced_securo_response(message, history=None):
             
             chart_json = json.dumps(chart_config, separators=(',', ':'))
             
-            return f"""**SECURO AI - HOMICIDE TRENDS ANALYSIS**
+            chart_intro = lang_terms.get('chart_intro', '**SECURO AI - HOMICIDE TRENDS ANALYSIS**')
+            
+            return f"""{chart_intro}
 
 The Royal St. Christopher & Nevis Police Force maintains comprehensive statistics on criminal activity, including homicides. The homicide figures for St. Kitts and Nevis from 2016 to 2024 show important trends:
 
@@ -2402,9 +2474,54 @@ While there was an increase from 25 homicides in 2022 to 31 in 2023, the 2024 fi
 
 **Emergency Services:** 911 (Police/Medical) | 333 (Fire)"""
 
-    # Default response with historical context
+    # Default response with historical context and language consideration
     else:
-        return f"""**SECURO AI ASSISTANT - ENHANCED OPERATIONAL STATUS**
+        if detected_language == 'es':
+            return """**ASISTENTE AI SECURO - ESTADO OPERATIVO MEJORADO**
+
+Saludos. Soy SECURO, su asistente de IA avanzado para la Fuerza Policial Real de San Cristóbal y Nieves, ahora mejorado con análisis integral de datos históricos y capacidades de generación de gráficos interactivos.
+
+**CAPACIDADES DEL SISTEMA:**
+- Análisis Histórico de Crímenes (2016-2024)
+- Generación de Gráficos Interactivos y Visualización de Datos
+- Reportes Estadísticos en Tiempo Real
+- Análisis de Tendencias Multi-año
+- Soporte de Referencia Legal
+- Coordinación de Respuesta de Emergencia
+
+**Comandos para Gráficos:**
+- "Muéstrame las tendencias de homicidios" - Generar gráficos de tendencias de homicidios
+- "Desglose de tipos de crímenes" - Mostrar gráficos de distribución de crímenes
+- "Visualizar datos de crímenes" - Crear gráficos generales de crímenes
+
+¿Cómo puedo asistirle hoy con análisis policial, visualización de datos, u objetivos de seguridad comunitaria?
+
+**Emergencia:** 911"""
+        
+        elif detected_language == 'fr':
+            return """**ASSISTANT AI SECURO - STATUT OPÉRATIONNEL AMÉLIORÉ**
+
+Salutations. Je suis SECURO, votre assistant IA avancé pour la Force de Police Royale de Saint-Christophe-et-Niévès, maintenant amélioré avec une analyse complète des données historiques et des capacités de génération de graphiques interactifs.
+
+**CAPACITÉS DU SYSTÈME:**
+- Analyse Historique de la Criminalité (2016-2024)
+- Génération de Graphiques Interactifs et Visualisation de Données
+- Rapports Statistiques en Temps Réel
+- Analyse des Tendances Multi-années
+- Support de Référence Légale
+- Coordination de Réponse d'Urgence
+
+**Commandes de Graphiques:**
+- "Montrez-moi les tendances d'homicides" - Générer des graphiques de tendances d'homicides
+- "Répartition des types de crimes" - Afficher des graphiques de distribution des crimes
+- "Visualiser les données de criminalité" - Créer des graphiques généraux de crimes
+
+Comment puis-je vous aider aujourd'hui avec l'analyse policière, la visualisation de données, ou les objectifs de sécurité communautaire?
+
+**Urgence:** 911"""
+            
+        else:
+            return f"""**SECURO AI ASSISTANT - ENHANCED OPERATIONAL STATUS**
 
 Greetings. I am SECURO, your advanced AI assistant for the Royal St. Christopher & Nevis Police Force, now enhanced with comprehensive historical data analysis and interactive chart generation capabilities.
 
@@ -2429,7 +2546,7 @@ def after_request(response):
     return response
 
 if __name__ == '__main__':
-    print("SECURO Enhanced Backend with REAL NEWS INTEGRATION Starting...")
+    print("SECURO Enhanced Backend with REAL NEWS INTEGRATION & LANGUAGE AUTO-DETECTION Starting...")
     print("✅ Real St. Kitts & Nevis Crime Data Integration Active")
     print("📰 News Sources:")
     print("   • St. Kitts Nevis Observer (Crime Section)")
@@ -2443,7 +2560,8 @@ if __name__ == '__main__':
     print("✅ Live Crime Feed with Real Data Sources")
     print("✅ Emergency Action Panel Removed")
     print("✅ Load More Functionality Fixed")
-    print("📋 Separate report pages: /anonymous-report and /identified-report")
+    print("🌍 Language Auto-Detection: Active")
+    print("🔧 Separate report pages: /anonymous-report and /identified-report")
     
     if GEMINI_API_KEY == "your_gemini_api_key_here":
         print("⚠️  WARNING: Please replace GEMINI_API_KEY with your actual API key!")
@@ -2471,13 +2589,15 @@ if __name__ == '__main__':
         print("   ✅ Real crime data aggregation successful")
     except Exception as e:
         print(f"   ⚠️  Real crime data check failed: {str(e)}")
-        print("   📝 System will use fallback data until sources are accessible")
+        print("   🔄 System will use fallback data until sources are accessible")
     
     print("🚀 Starting Flask development server...")
     print("📱 Access Live Crime Feed at: http://localhost:5000/live-crime-feed")
+    print("🤖 AI Assistant with Language Auto-Detection at: http://localhost:5000/chatbot")
     print("🔗 API Endpoints:")
     print("   • /api/live-feed-data - Real crime data with filtering")
     print("   • /api/crime-feed-sources - Source status check")
     print("   • /api/refresh-crime-sources - Manual source refresh")
+    print("   • /api/chat - AI chat with language detection")
     
     app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
