@@ -3,7 +3,7 @@ SECURO - St. Kitts & Nevis Crime Prevention Platform
 Real News Feed Integration System with Language Auto-Detection
 
 REQUIRED DEPENDENCIES:
-pip install flask flask-mail flask-cors google-generativeai beautifulsoup4 requests
+pip install flask flask-mail flask-cors google-generativeai beautifulsoup4 requests python-dotenv
 
 REAL DATA SOURCES:
 - St. Kitts Nevis Observer (Crime Section)
@@ -18,7 +18,15 @@ FEATURES:
 - Source status monitoring and manual refresh capabilities
 - Data transparency with source indicators
 - Language Auto-Detection for multilingual support
+- SECURE: All API keys loaded from environment variables
 """
+
+import os
+import sys
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from flask import Flask, render_template, request, jsonify, session, Response
 from flask_mail import Mail, Message
@@ -27,7 +35,6 @@ import json
 import requests
 import random
 from datetime import datetime, timedelta
-import os
 import logging
 import google.generativeai as genai
 import io
@@ -43,7 +50,9 @@ import hashlib
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
-app.secret_key = 'securo_st_kitts_nevis_ai_platform_2025'
+
+# SECURE: Load secret key from environment variable
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'fallback-dev-key-change-in-production')
 
 # Enable CORS for all routes
 CORS(app)
@@ -55,31 +64,67 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Email configuration for Flask-Mail
+# SECURE: Email configuration from environment variables
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'SKNPOLICEFORCE869@GMAIL.COM'
-app.config['MAIL_PASSWORD'] = 'fntu mdfl pdgt dstz'
-app.config['MAIL_DEFAULT_SENDER'] = 'SKNPOLICEFORCE869@GMAIL.COM'
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
 
 # Initialize Flask-Mail
 mail = Mail(app)
 
-# PUT YOUR GOOGLE GEMINI API KEY HERE
-GEMINI_API_KEY = "AIzaSyCkzxCzuoE8vnLgnLP85h7Peu1bVoMJI4c"
+# SECURE: Load API keys from environment variables
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+ELEVENLABS_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
+ELEVENLABS_VOICE_ID = os.environ.get('ELEVENLABS_VOICE_ID', 'mrDMz4sYNCz18XYFpmyV')
+
+# Validate critical environment variables
+required_env_vars = {
+    'FLASK_SECRET_KEY': app.secret_key,
+    'GEMINI_API_KEY': GEMINI_API_KEY,
+    'ELEVENLABS_API_KEY': ELEVENLABS_API_KEY,
+    'MAIL_USERNAME': app.config['MAIL_USERNAME'],
+    'MAIL_PASSWORD': app.config['MAIL_PASSWORD']
+}
+
+missing_vars = []
+for var_name, var_value in required_env_vars.items():
+    if not var_value or var_value in ['fallback-dev-key-change-in-production']:
+        missing_vars.append(var_name)
+
+if missing_vars:
+    logger.error(f"❌ CRITICAL: Missing required environment variables: {', '.join(missing_vars)}")
+    logger.error("Please create a .env file with these variables before starting the application")
+    logger.error("See .env.example for the template")
+    if os.environ.get('FLASK_ENV') == 'production':
+        print("🚨 PRODUCTION ERROR: Cannot start without proper environment variables!")
+        sys.exit(1)
+    else:
+        logger.warning("🚨 DEVELOPMENT WARNING: Some features may not work without proper environment variables")
+
+# Configure Gemini only if API key is available
+model = None
+if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
+    try:
+        genai.configure(api_key=GEMINI_API_KEY)
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        logger.info("✅ Gemini AI configured successfully")
+    except Exception as e:
+        logger.error(f"❌ Gemini AI configuration failed: {str(e)}")
+        model = None
+else:
+    logger.warning("⚠️ GEMINI_API_KEY not properly set - AI features will be limited")
 
 # ElevenLabs Configuration
-ELEVENLABS_API_KEY = "sk_b5025f541c1d26b003378ae0d67c6f9d2b65188ae0b510fd"
-ELEVENLABS_VOICE_ID = "YzcW0rJKRZq4z8nRW5vY"
-ELEVENLABS_API_URL = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}"
-
-# Configure Gemini
-genai.configure(api_key=GEMINI_API_KEY)
-
-# Initialize Gemini model
-model = genai.GenerativeModel('gemini-2.5-flash')
+ELEVENLABS_API_URL = None
+if ELEVENLABS_API_KEY and ELEVENLABS_API_KEY != "your_elevenlabs_api_key_here":
+    ELEVENLABS_API_URL = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}"
+    logger.info("✅ ElevenLabs voice synthesis configured")
+else:
+    logger.warning("⚠️ ELEVENLABS_API_KEY not properly set - voice synthesis will be disabled")
 
 # REAL NEWS FEED INTEGRATION SYSTEM
 class StKittsNevisCrimeFeedAggregator:
@@ -256,7 +301,7 @@ class StKittsNevisCrimeFeedAggregator:
         """Scrape crime news from WINN FM"""
         incidents = []
         try:
-            response = requests.get(self.sources['winn']['url'], headers=self.headers, timeout=10)
+            response = requests.get(self.sources['winnfm']['url'], headers=self.headers, timeout=10)
             soup = BeautifulSoup(response.content, 'html.parser')
             
             # Find news articles
@@ -273,7 +318,7 @@ class StKittsNevisCrimeFeedAggregator:
                     if self.is_crime_related(title):
                         link = title_elem.get('href', '') if hasattr(title_elem, 'get') else ''
                         if link and not link.startswith('http'):
-                            link = urljoin(self.sources['winn']['url'], link)
+                            link = urljoin(self.sources['winnfm']['url'], link)
                         
                         date_elem = article.find('time') or article.find('span', class_=['date', 'published'])
                         article_date = self.parse_date(date_elem.get_text() if date_elem else '')
@@ -869,7 +914,7 @@ CAPABILITIES:
 8. **AUTOMATIC LANGUAGE DETECTION**: Respond in the user's detected language while maintaining professional law enforcement identity
 
 CHART GENERATION INSTRUCTIONS:
-When users request charts, graphs, or visualizations, you MUST:
+When users request charts, graphs, visualizations, or ask questions that would benefit from visual representation, you MUST:
 1. Generate Chart.js compatible JSON configuration
 2. Include the chart in your response using this EXACT format:
    
@@ -951,9 +996,13 @@ RESTRICTIONS:
 Maintain your professional law enforcement persona throughout all responses without unnecessary pleasantries, unless requested for a different persona by the user."""
 
 # Alternative email function using direct SMTP (more reliable)
-def send_crime_report_email(subject, content, recipient_email='SKNPOLICEFORCE869@GMAIL.COM'):
+def send_crime_report_email(subject, content, recipient_email=None):
     """Send email using direct SMTP connection"""
     try:
+        # Use environment variable for recipient, fallback to default
+        if not recipient_email:
+            recipient_email = app.config['MAIL_USERNAME']  # This will be the configured email
+        
         logger.info(f"Attempting to send email: {subject}")
         
         # Create message
@@ -1459,7 +1508,7 @@ def submit_report():
             try:
                 msg = Message(
                     subject=subject,
-                    recipients=['SKNPOLICEFORCE869@GMAIL.COM'],
+                    recipients=[app.config['MAIL_USERNAME']],  # Send to configured email
                     body=email_content
                 )
                 mail.send(msg)
@@ -1615,6 +1664,13 @@ Follow-up Instructions:
 def text_to_speech():
     """Convert text to speech using ElevenLabs API"""
     try:
+        if not ELEVENLABS_API_URL:
+            return jsonify({
+                'success': False,
+                'error': 'ElevenLabs API not configured',
+                'fallback': True
+            }), 500
+            
         data = request.json
         text = data.get('text', '')
         
@@ -2038,9 +2094,9 @@ def generate_hotspots_comparison_chart(years):
 def generate_gemini_securo_response(user_message, conversation_history=None, detected_language='en'):
     """Generate SECURO response using Google Gemini with chart generation and language detection"""
     try:
-        # Check API key
-        if not GEMINI_API_KEY or GEMINI_API_KEY == "your_gemini_api_key_here":
-            return "WARNING: Google Gemini API key not properly set. Please check your API key in the code."
+        # Check if model is available
+        if not model:
+            return generate_enhanced_securo_response(user_message, conversation_history, detected_language)
         
         # Build conversation context
         conversation_context = ""
@@ -2546,58 +2602,107 @@ def after_request(response):
     return response
 
 if __name__ == '__main__':
+    # Environment check
+    env_mode = os.environ.get('FLASK_ENV', 'development')
+    
     print("SECURO Enhanced Backend with REAL NEWS INTEGRATION & LANGUAGE AUTO-DETECTION Starting...")
-    print("✅ Real St. Kitts & Nevis Crime Data Integration Active")
+    print("✅ SECURE: All API keys loaded from environment variables")
     print("📰 News Sources:")
     print("   • St. Kitts Nevis Observer (Crime Section)")
     print("   • SKNIS Government News")
     print("   • WINN FM News")
     print("✅ Multi-year crime data loaded (2016-2024)")
     print("✅ Chart generation capabilities enabled")
-    print("✅ Google Gemini AI integration active")
     print("✅ Email crime reporting system enabled")
-    print("✅ ElevenLabs voice synthesis integrated")
     print("✅ Live Crime Feed with Real Data Sources")
-    print("✅ Emergency Action Panel Removed")
-    print("✅ Load More Functionality Fixed")
-    print("🌍 Language Auto-Detection: Active")
+    print("🌐 Language Auto-Detection: Active")
     print("🔧 Separate report pages: /anonymous-report and /identified-report")
     
-    if GEMINI_API_KEY == "your_gemini_api_key_here":
-        print("⚠️  WARNING: Please replace GEMINI_API_KEY with your actual API key!")
-    else:
-        print(f"✅ Gemini API key configured: {GEMINI_API_KEY[:7]}...{GEMINI_API_KEY[-4:]}")
+    # Security status checks
+    security_status = []
     
-    if ELEVENLABS_API_KEY == "your_elevenlabs_api_key_here":
-        print("⚠️  WARNING: Please replace ELEVENLABS_API_KEY with your actual API key!")
+    if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
+        print(f"✅ Gemini API configured: {GEMINI_API_KEY[:7]}...{GEMINI_API_KEY[-4:]}")
+        security_status.append("✅ Gemini API")
     else:
-        print(f"✅ ElevenLabs API key configured: {ELEVENLABS_API_KEY[:7]}...{ELEVENLABS_API_KEY[-4:]}")
+        print("⚠️ WARNING: GEMINI_API_KEY not properly configured!")
+        security_status.append("❌ Gemini API")
+    
+    if ELEVENLABS_API_KEY and ELEVENLABS_API_KEY != "your_elevenlabs_api_key_here":
+        print(f"✅ ElevenLabs API configured: {ELEVENLABS_API_KEY[:7]}...{ELEVENLABS_API_KEY[-4:]}")
         print(f"✅ Voice ID configured: {ELEVENLABS_VOICE_ID}")
+        security_status.append("✅ ElevenLabs API")
+    else:
+        print("⚠️ WARNING: ELEVENLABS_API_KEY not properly configured!")
+        security_status.append("❌ ElevenLabs API")
     
     # Check email configuration
-    if app.config['MAIL_USERNAME'] == 'your-sender-email@gmail.com':
-        print("⚠️  WARNING: Please configure your Gmail settings in the app configuration!")
+    if app.config['MAIL_USERNAME'] and app.config['MAIL_PASSWORD']:
+        print(f"✅ Email configuration verified: {app.config['MAIL_USERNAME']}")
+        security_status.append("✅ Email Config")
     else:
-        print(f"✅ Email configuration set for: {app.config['MAIL_USERNAME']}")
+        print("⚠️ WARNING: Email configuration incomplete!")
+        security_status.append("❌ Email Config")
     
-    print("📧 Crime reports will be sent to: SKNPOLICEFORCE869@GMAIL.COM")
-    print("🌐 Real Crime Data Sources Status:")
+    if app.secret_key != 'fallback-dev-key-change-in-production':
+        print("✅ Flask secret key configured securely")
+        security_status.append("✅ Flask Secret")
+    else:
+        print("⚠️ WARNING: Using fallback Flask secret key - set FLASK_SECRET_KEY!")
+        security_status.append("❌ Flask Secret")
     
-    # Check news sources availability
+    print(f"\n🔒 Security Status: {len([s for s in security_status if '✅' in s])}/{len(security_status)} components secure")
+    
+    # Crime data source check
+    print("\n🌐 Real Crime Data Sources Status:")
     try:
         crime_aggregator.fetch_real_crime_data()
         print("   ✅ Real crime data aggregation successful")
     except Exception as e:
-        print(f"   ⚠️  Real crime data check failed: {str(e)}")
+        print(f"   ⚠️ Real crime data check failed: {str(e)}")
         print("   🔄 System will use fallback data until sources are accessible")
     
-    print("🚀 Starting Flask development server...")
-    print("📱 Access Live Crime Feed at: http://localhost:5000/live-crime-feed")
-    print("🤖 AI Assistant with Language Auto-Detection at: http://localhost:5000/chatbot")
-    print("🔗 API Endpoints:")
-    print("   • /api/live-feed-data - Real crime data with filtering")
-    print("   • /api/crime-feed-sources - Source status check")
-    print("   • /api/refresh-crime-sources - Manual source refresh")
-    print("   • /api/chat - AI chat with language detection")
+    # Environment-specific startup
+    if env_mode == 'production':
+        print("\n🚀 PRODUCTION MODE DETECTED")
+        print("📋 For production deployment, use Gunicorn:")
+        print("   gunicorn --workers 4 --bind 0.0.0.0:3010 app:app")
+        print("\n🔧 PM2 Configuration:")
+        print("   pm2 start ecosystem.config.js --env production")
+        print("\n⚠️ Do not use Flask development server in production!")
+        
+        # Check if all required environment variables are set for production
+        missing_prod_vars = [var for var, value in required_env_vars.items() if not value or 'fallback' in str(value)]
+        if missing_prod_vars:
+            print(f"\n❌ PRODUCTION ERROR: Missing required environment variables:")
+            for var in missing_prod_vars:
+                print(f"   - {var}")
+            print("Cannot start in production mode without proper environment variables!")
+            sys.exit(1)
+        else:
+            print("✅ All production environment variables configured")
     
-    app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
+    elif env_mode == 'development':
+        print("\n🚨 DEVELOPMENT MODE - Debug server active")
+        print("⚠️ Do not use in production!")
+        print("\n🌐 Development URLs:")
+        print("   📱 Live Crime Feed: http://localhost:3010/live-crime-feed")
+        print("   🤖 AI Assistant: http://localhost:3010/chatbot")
+        print("   📊 Analytics Dashboard: http://localhost:3010/analytics")
+        print("   🗺️ Crime Hotspots: http://localhost:3010/hotspots")
+        print("   📝 Report Crime: http://localhost:3010/report-crime")
+        
+        print("\n🔗 API Endpoints:")
+        print("   • /api/live-feed-data - Real crime data with filtering")
+        print("   • /api/crime-feed-sources - Source status check")
+        print("   • /api/refresh-crime-sources - Manual source refresh")
+        print("   • /api/chat - AI chat with language detection")
+        print("   • /api/submit-report - Crime report submission")
+        print("   • /api/text-to-speech - Voice synthesis")
+        
+        # Start development server
+        app.run(debug=True, host='0.0.0.0', port=3010, threaded=True)
+    
+    else:
+        print(f"\n🔧 Unknown environment mode: {env_mode}")
+        print("Set FLASK_ENV to 'development' or 'production'")

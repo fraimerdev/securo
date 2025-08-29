@@ -1,0 +1,38 @@
+# Environment variables (secrets)
+.env
+
+# Virtual environment
+securo_env/
+venv/
+env/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Flask/Python logs
+*.log
+logs/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+backup_report_*.txt
+
+# Flask session files
+flask_session/
+
+# Coverage reports
+htmlcov/
+.coverage
+.pytest_cache/

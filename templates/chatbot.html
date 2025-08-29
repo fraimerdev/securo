@@ -1042,6 +1042,8 @@
             this.isVoiceEnabled = false; // Voice OFF by default
             this.isChartsEnabled = true;
             this.isListening = false;
+            this.currentAudio = null; // Track current playing audio
+            this.isSpeaking = false; // Track if currently speaking
             
             this.loadChatHistoryFromStorage();
             this.initializeEventListeners();
@@ -1590,7 +1592,7 @@
                 // Show typing indicator AFTER user message is displayed
                 this.showTypingIndicator();
                 
-                const response = await fetch('/api/chat', {
+                const response = await fetch('http://localhost:3010/api/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1610,9 +1612,13 @@
                     this.addMessage('assistant', data.response);
                     this.displayMessage('assistant', data.response);
                     
+                    // Only auto-speak if voice is enabled
                     if (this.isVoiceEnabled) {
                         const cleanText = data.response.replace(/\*\*CHART_GENERATION_START\*\*[\s\S]*?\*\*CHART_GENERATION_END\*\*/g, '');
-                        this.speakText(cleanText);
+                        // Don't wait for voice to complete
+                        this.speakText(cleanText).catch(err => {
+                            console.error('Voice synthesis failed:', err);
+                        });
                     }
                 } else {
                     throw new Error('API request failed');
@@ -1626,28 +1632,51 @@
             }
         }
 
-        // Voice functionality
+        // Optimized voice functionality with caching
         async speakText(text) {
-            if (!this.isVoiceEnabled) return;
+            if (!this.isVoiceEnabled || this.isSpeaking) return;
+            
+            // Stop any currently playing audio
+            if (this.currentAudio) {
+                this.currentAudio.pause();
+                this.currentAudio = null;
+            }
+            
+            this.isSpeaking = true;
 
             try {
-                const response = await fetch('/api/text-to-speech', {
+                // Limit text length for faster processing
+                const maxLength = 500;
+                const truncatedText = text.length > maxLength ? 
+                    text.substring(0, maxLength) + '...' : text;
+
+                const response = await fetch('http://localhost:3010/api/text-to-speech', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ text: text })
+                    body: JSON.stringify({ 
+                        text: truncatedText,
+                        speed: 1.2
+                    })
                 });
+
+                if (!response.ok) {
+                    throw new Error('TTS request failed');
+                }
 
                 const data = await response.json();
 
                 if (data.success) {
                     await this.playBase64Audio(data.audio_data);
                 } else {
-                    console.error('Voice synthesis failed:', data.error);
+                    throw new Error(data.error || 'Voice synthesis failed');
                 }
             } catch (error) {
                 console.error('Voice synthesis error:', error);
+                // Don't show notification for voice errors
+            } finally {
+                this.isSpeaking = false;
             }
         }
 
@@ -1665,28 +1694,42 @@
                 const audioUrl = URL.createObjectURL(blob);
                 const audio = new Audio(audioUrl);
                 
+                this.currentAudio = audio;
                 audio.volume = 0.9;
+                audio.playbackRate = 1.1; // Slightly faster playback
                 
                 return new Promise((resolve, reject) => {
                     audio.onended = () => {
                         URL.revokeObjectURL(audioUrl);
+                        this.currentAudio = null;
                         resolve();
                     };
                     audio.onerror = (e) => {
                         URL.revokeObjectURL(audioUrl);
+                        this.currentAudio = null;
                         reject(new Error('Audio playback failed'));
                     };
                     audio.play().catch(reject);
                 });
             } catch (error) {
                 console.error('Audio playback error:', error);
+                this.currentAudio = null;
                 throw error;
             }
         }
 
         speakMessage(text) {
             if (this.isVoiceEnabled) {
-                this.speakText(text);
+                // Show a quick indicator that speech is starting
+                const speakBtn = event.currentTarget;
+                if (speakBtn) {
+                    speakBtn.classList.add('speaking');
+                    setTimeout(() => speakBtn.classList.remove('speaking'), 2000);
+                }
+                
+                this.speakText(text).catch(err => {
+                    console.error('Voice synthesis failed:', err);
+                });
             } else {
                 this.showNotification('Voice is disabled. Enable it in the sidebar.');
             }
@@ -1833,6 +1876,14 @@
                 if (toggleVoiceBtn) {
                     toggleVoiceBtn.addEventListener('click', () => {
                         this.isVoiceEnabled = !this.isVoiceEnabled;
+                        
+                        // Stop any current audio when disabling voice
+                        if (!this.isVoiceEnabled && this.currentAudio) {
+                            this.currentAudio.pause();
+                            this.currentAudio = null;
+                            this.isSpeaking = false;
+                        }
+                        
                         this.updateVoiceButtonState();
                         this.showNotification(this.isVoiceEnabled ? 'Voice enabled' : 'Voice disabled');
                     });
@@ -2032,7 +2083,7 @@
     console.log('🎙️ Voice: OFF by default (user must enable)');
     console.log('📊 Charts: Enabled with St. Kitts flag color scheme');
     console.log('🗂️ Chat History: Persistent with modern design');
-    console.log('🌍 Auto Language Detection: Active');
+    console.log('🌐 Auto Language Detection: Active');
     console.log('🇰🇳 Colors: Green (#00A651), Red (#E31E24), Yellow (#FFD700), Black, White');
 </script>
 {% endblock %}
